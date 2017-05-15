@@ -7,7 +7,10 @@
   "scripts": {
     "lint": "eslint src",
     "precommit": "lint-staged",
-    "prettier": "prettier 'src/**/*.js' --write --single-quote=true --print-width=120 --trailing-comma=es5"
+    "prettier": "prettier 'src/**/*.js' --write --single-quote=true --print-width=120 --trailing-comma=es5",
+    "test": "jest",
+    "test:coverage": "yarn test -- --coverage",
+    "test:watch": "yarn test -- --watch"
   },
   "lint-staged": {
     "*.js": [
