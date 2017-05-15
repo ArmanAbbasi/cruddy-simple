@@ -37,5 +37,13 @@
     "presets": [
       "es2015"
     ]
+  },
+  "dependencies": {
+    "aws-sdk": "^2.50.0",
+    "koa": "^2.2.0",
+    "koa-basic-auth": "^2.0.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-cors": "^0.0.16",
+    "uuid": "^3.0.1"
   }
 }
