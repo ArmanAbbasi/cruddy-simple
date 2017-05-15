@@ -1,0 +1,17 @@
+{
+  "name": "ecom-option-group-api",
+  "version": "0.0.1",
+  "description": "API for Option Group microservice Edit",
+  "repository": "git@github.com:photobox/ecom-option-group-api.git",
+  "author": "Photobox",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-eslint": "^7.2.3",
+    "babel-jest": "^20.0.1",
+    "babel-preset-es2015": "^6.24.1",
+    "eslint": "^3.19.0",
+    "jest": "^20.0.1",
+    "prettier": "^1.3.1"
+  }
+}
