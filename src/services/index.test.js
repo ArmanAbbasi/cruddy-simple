@@ -1,6 +1,6 @@
 import Either from 'data.either';
 
-import { get, getAll } from './';
+import { get, getAll, post } from './';
 
 describe('Services', () => {
   describe('.getAll', () => {
@@ -80,6 +80,58 @@ describe('Services', () => {
 
       await get(db)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(404);
+    });
+  });
+
+  describe('.post', () => {
+    it('calls db create with context request body', () => {
+      const createSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
+      const db = { create: createSpy };
+      const ctx = { request: { body: { whatever: 'trevor' } } };
+      post(db)(ctx);
+      expect(createSpy).toHaveBeenCalledWith({ whatever: 'trevor' });
+    });
+
+    it('calls ctx throw with 500 and error message when create returns an error', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { request: { body: { whatever: 'trevor' } }, throw: throwSpy };
+      const createSpy = () => Either.Left('Error could not connect to database');
+      const db = { create: createSpy };
+
+      await post(db)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
+    });
+
+    it('returns ctx with body set to result of create when create is successful', async () => {
+      const ctx = { request: { body: { whatever: 'trevor' } } };
+      const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
+      const db = { create: createSpy };
+
+      const actual = await post(db)(ctx);
+      expect(actual.body).toEqual({
+        id: 100,
+        whatever: 'trevor',
+      });
+    });
+
+    it('returns ctx with status set to 201 when create is successful', async () => {
+      const ctx = { request: { body: { whatever: 'trevor' } } };
+      const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
+      const db = { create: createSpy };
+
+      const actual = await post(db)(ctx);
+      expect(actual.status).toBe(201);
+    });
+
+    it('calls throw when id is present in request body', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { request: { body: { id: 100, whatever: 'trevor' } }, throw: throwSpy };
+
+      const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
+      const db = { create: createSpy };
+
+      await post(db)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(400, 'Cannot include id in request body');
     });
   });
 });
