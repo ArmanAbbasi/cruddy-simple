@@ -1,6 +1,6 @@
 import Either from 'data.either';
 
-import { getAll } from './';
+import { get, getAll } from './';
 
 describe('Services', () => {
   describe('.getAll', () => {
@@ -35,6 +35,51 @@ describe('Services', () => {
       };
       await getAll(db)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error not connected to Database');
+    });
+  });
+
+  describe('.get', () => {
+    it('calls db readById with id in context params', async () => {
+      const ctx = { params: { id: 100 } };
+      const readByIdSpy = jest.fn(() => Either.Right({ Item: { id: 100, name: 'Shape' } }));
+      const db = { readById: readByIdSpy };
+
+      await get(db)(ctx);
+
+      expect(readByIdSpy).toHaveBeenCalledWith(100);
+    });
+
+    it('returns context with body as found option group', async () => {
+      const ctx = { params: { id: 100 } };
+      const readByIdSpy = jest.fn(() => Either.Right({ Item: { id: 100, name: 'Shape' } }));
+      const db = { readById: readByIdSpy };
+
+      const actual = await get(db)(ctx);
+
+      expect(actual).toEqual({
+        params: { id: 100 },
+        body: { Item: { id: 100, name: 'Shape' } },
+      });
+    });
+
+    it('calls ctx throw with 500 and error message when readById returns an error', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { params: { id: 100 }, throw: throwSpy };
+      const readByIdSpy = jest.fn(() => Either.Left('Error no group found'));
+      const db = { readById: readByIdSpy };
+
+      await get(db)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(500, 'Error no group found');
+    });
+
+    it('calls ctx throw with 404 when readById returns an empty item', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { params: { id: 100 }, throw: throwSpy };
+      const readByIdSpy = jest.fn(() => Either.Right({}));
+      const db = { readById: readByIdSpy };
+
+      await get(db)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(404);
     });
   });
 });
