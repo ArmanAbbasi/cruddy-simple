@@ -49,6 +49,7 @@
     "koa-basic-auth": "^2.0.0",
     "koa-bodyparser": "^4.2.0",
     "koa-cors": "^0.0.16",
+    "ramda": "^0.23.0",
     "uuid": "^3.0.1"
   }
 }
