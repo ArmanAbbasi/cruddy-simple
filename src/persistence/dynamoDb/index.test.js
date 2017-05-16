@@ -134,4 +134,37 @@ describe('Dynamo DB', () => {
       expect(actual).toEqual(Either.Left('Error unable to connect to DynamoDB'));
     });
   });
+
+  describe('.update', () => {
+    const params = { table: 'hello' };
+
+    it('calls client put with an object containing given item, db params and id', async () => {
+      const item = { name: 'Shape' };
+      const putSpy = jest.fn(() => ({ promise: noop }));
+      const client = { put: putSpy };
+
+      await DynamoDb(client, params).update(100, item);
+
+      expect(putSpy).toHaveBeenCalledWith({ table: 'hello', Item: { id: 100, name: 'Shape' } });
+    });
+
+    it('returns item with id when client put is successful', async () => {
+      const item = { name: 'Shape' };
+      const promiseSpy = () => Promise.resolve(item);
+      const client = { put: () => ({ promise: promiseSpy }) };
+
+      const actual = await DynamoDb(client, params).update(911, item);
+
+      expect(actual).toEqual(Either.Right({ id: 911, name: 'Shape' }));
+    });
+
+    it('returns error when put fails', async () => {
+      const item = { name: 'Shape' };
+      const promiseSpy = () => Promise.reject('Error unable to connect to DynamoDB');
+      const client = { put: () => ({ promise: promiseSpy }) };
+      const actual = await DynamoDb(client, params).update(100, item);
+
+      expect(actual).toEqual(Either.Left('Error unable to connect to DynamoDB'));
+    });
+  });
 });

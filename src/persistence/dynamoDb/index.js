@@ -13,18 +13,22 @@ const read = (client, params) => () => executePromise(client.scan(params).promis
 
 const readById = (client, params) => id => executePromise(client.get({ Key: { id }, ...params }).promise);
 
-const create = (client, params, createId) => async item => {
-  const Item = { ...item, id: createId() };
+const upsert = async (client, params, item) => {
   try {
-    await client.put({ ...params, Item }).promise();
-    return Either.Right(Item);
+    await client.put({ ...params, Item: item }).promise();
+    return Either.Right(item);
   } catch (e) {
     return Either.Left(e);
   }
 };
 
+const create = (client, params, createId) => async item => upsert(client, params, { ...item, id: createId() });
+
+const update = (client, params) => async (id, item) => upsert(client, params, { ...item, id });
+
 export default (client, params, createId) => ({
+  create: create(client, params, createId),
   read: read(client, params),
   readById: readById(client, params),
-  create: create(client, params, createId),
+  update: update(client, params),
 });
