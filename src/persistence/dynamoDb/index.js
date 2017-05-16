@@ -13,17 +13,18 @@ const read = (client, params) => () => executePromise(client.scan(params).promis
 
 const readById = (client, params) => id => executePromise(client.get({ Key: { id }, ...params }).promise);
 
-const create = (client, params) => async item => {
+const create = (client, params, createId) => async item => {
+  const Item = { ...item, id: createId() };
   try {
-    await client.put({ ...params, Item: item }).promise();
-    return Either.Right(item);
+    await client.put({ ...params, Item }).promise();
+    return Either.Right(Item);
   } catch (e) {
     return Either.Left(e);
   }
 };
 
-export default (client, params) => ({
+export default (client, params, createId) => ({
   read: read(client, params),
   readById: readById(client, params),
-  create: create(client, params),
+  create: create(client, params, createId),
 });

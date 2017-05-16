@@ -92,44 +92,46 @@ describe('Dynamo DB', () => {
   });
 
   describe('.create', () => {
-    it('calls client put with given Item and db params', async () => {
-      const item = { id: 100, name: 'Shape' };
+    const params = { table: 'hello' };
+
+    it('calls createId function to generate a unique id', async () => {
+      const item = { name: 'Shape' };
+      const client = { put: noop };
+      const createIdSpy = jest.fn();
+
+      await DynamoDb(client, params, createIdSpy).create(item);
+
+      expect(createIdSpy).toHaveBeenCalled();
+    });
+
+    it('calls client put with an object containing given item, db params and a unique id', async () => {
+      const item = { name: 'Shape' };
       const putSpy = jest.fn(() => ({ promise: noop }));
       const client = { put: putSpy };
+      const createId = () => 100;
+      await DynamoDb(client, params, createId).create(item);
 
-      await DynamoDb(client, { table: 'hello' }).create(item);
-
-      expect(putSpy).toHaveBeenCalledWith({ table: 'hello', Item: item });
+      expect(putSpy).toHaveBeenCalledWith({ table: 'hello', Item: { id: 100, name: 'Shape' } });
     });
-  });
 
-  it('calls put promise', async () => {
-    const item = { id: 100, name: 'Shape' };
-    const promiseSpy = jest.fn();
-    const client = { put: () => ({ promise: promiseSpy }) };
+    it('returns item with generated id when client put is successful', async () => {
+      const item = { name: 'Shape' };
+      const promiseSpy = () => Promise.resolve(item);
+      const client = { put: () => ({ promise: promiseSpy }) };
 
-    await DynamoDb(client, { table: 'hello' }).create(item);
+      const createId = () => 911;
+      const actual = await DynamoDb(client, params, createId).create(item);
 
-    expect(promiseSpy).toHaveBeenCalled();
-  });
+      expect(actual).toEqual(Either.Right({ id: 911, name: 'Shape' }));
+    });
 
-  it('returns item when client put is successful', async () => {
-    const item = { id: 100, name: 'Shape' };
-    const promiseSpy = () => Promise.resolve(item);
-    const client = { put: () => ({ promise: promiseSpy }) };
+    it('returns error when put fails', async () => {
+      const item = { name: 'Shape' };
+      const promiseSpy = () => Promise.reject('Error unable to connect to DynamoDB');
+      const client = { put: () => ({ promise: promiseSpy }) };
+      const actual = await DynamoDb(client, params, noop).create(item);
 
-    const actual = await DynamoDb(client, { table: 'hello' }).create(item);
-
-    expect(actual).toEqual(Either.Right(item));
-  });
-
-  it('returns error when put fails', async () => {
-    const item = { id: 100, name: 'Shape' };
-    const promiseSpy = () => Promise.reject('Error unable to connect to DynamoDB');
-    const client = { put: () => ({ promise: promiseSpy }) };
-
-    const actual = await DynamoDb(client, { table: 'hello' }).create(item);
-
-    expect(actual).toEqual(Either.Left('Error unable to connect to DynamoDB'));
+      expect(actual).toEqual(Either.Left('Error unable to connect to DynamoDB'));
+    });
   });
 });
