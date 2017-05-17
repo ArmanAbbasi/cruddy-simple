@@ -5,7 +5,7 @@
   "repository": "git@github.com:photobox/ecom-option-group-api.git",
   "author": "Photobox",
   "scripts": {
-    "dev": "nodemon | babel-node src/index.js",
+    "dev": "nodemon src/index.js",
     "lint": "eslint src",
     "precommit": "lint-staged",
     "prettier": "prettier 'src/**/*.js' --write --single-quote=true --print-width=120 --trailing-comma=es5",
