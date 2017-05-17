@@ -40,9 +40,20 @@ const update = (client, params) => async (id, item) => {
 
   if (result.isLeft) return result;
 
-  const Item = { ...item, id };
+  return upsert(client, params, { ...item, id });
+};
 
-  return upsert(client, params, Item);
+const destroy = (client, params) => async id => {
+  const result = await readById(client, params)(id);
+
+  if (result.isLeft) return result;
+
+  try {
+    const deletedItem = await client.delete({ ...params, Key: { id }, ReturnValues: 'ALL_OLD' }).promise();
+    return Either.Right(deletedItem);
+  } catch (e) {
+    return Either.Left(e);
+  }
 };
 
 export default (client, params, createId) => ({
@@ -50,4 +61,5 @@ export default (client, params, createId) => ({
   read: read(client, params),
   readById: readById(client, params),
   update: update(client, params),
+  delete: destroy(client, params),
 });

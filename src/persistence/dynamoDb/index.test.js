@@ -149,13 +149,13 @@ describe('Dynamo DB', () => {
     const params = { table: 'hello' };
 
     it('calls client get with an id', async () => {
+      const getSpy = jest.fn(() => ({ promise: () => Promise.reject('') }));
+      const client = { get: getSpy };
       const item = { name: 'Shape' };
-      const putSpy = jest.fn(() => ({ promise: noop }));
-      const client = { put: putSpy, get: () => ({ promise: () => Promise.resolve({ id: 100 }) }) };
 
       await DynamoDb(client, params).update(100, item);
 
-      expect(putSpy).toHaveBeenCalledWith({ table: 'hello', Item: { id: 100, name: 'Shape' } });
+      expect(getSpy).toHaveBeenCalledWith({ table: 'hello', Key: { id: 100 } });
     });
 
     it('returns not found error when client get returns an empty object', async () => {
@@ -210,6 +210,70 @@ describe('Dynamo DB', () => {
       };
 
       const actual = await DynamoDb(client, params).update(100, item);
+
+      expect(actual).toEqual(Either.Left('Error unable to connect to DynamoDB'));
+    });
+  });
+
+  describe('.delete', () => {
+    const params = { table: 'hello' };
+
+    it('calls client get with an id', async () => {
+      const getSpy = jest.fn(() => ({ promise: () => Promise.reject('') }));
+      const client = { get: getSpy };
+
+      await DynamoDb(client, params).delete(100);
+
+      expect(getSpy).toHaveBeenCalledWith({ table: 'hello', Key: { id: 100 } });
+    });
+
+    it('returns not found error when client get returns an empty object', async () => {
+      const deleteSpy = jest.fn(() => ({ promise: noop }));
+      const client = { delete: deleteSpy, get: () => ({ promise: () => Promise.resolve({}) }) };
+
+      const actual = await DynamoDb(client, params).delete(100);
+
+      expect(actual).toEqual(Either.Left(new NotFoundError()));
+    });
+
+    it('returns error when client get fails', async () => {
+      const deleteSpy = jest.fn(() => ({ promise: noop }));
+      const client = { delete: deleteSpy, get: () => ({ promise: () => Promise.reject('Some error') }) };
+
+      const actual = await DynamoDb(client, params).delete(100);
+
+      expect(actual).toEqual(Either.Left('Some error'));
+    });
+
+    it('calls client delete with an object containing given id and db params when get is successful', async () => {
+      const deleteSpy = jest.fn(() => ({ promise: noop }));
+      const client = { delete: deleteSpy, get: () => ({ promise: () => Promise.resolve({ id: 100 }) }) };
+
+      await DynamoDb(client, params).delete(100);
+
+      expect(deleteSpy).toHaveBeenCalledWith({ table: 'hello', ReturnValues: 'ALL_OLD', Key: { id: 100 } });
+    });
+
+    it('returns item that has been deleted when successful', async () => {
+      const promiseSpy = () => Promise.resolve({ id: 911 });
+      const client = {
+        delete: () => ({ promise: promiseSpy }),
+        get: () => ({ promise: () => Promise.resolve({ id: 911 }) }),
+      };
+
+      const actual = await DynamoDb(client, params).delete(911);
+
+      expect(actual).toEqual(Either.Right({ id: 911 }));
+    });
+
+    it('returns error when delete fails', async () => {
+      const promiseSpy = () => Promise.reject('Error unable to connect to DynamoDB');
+      const client = {
+        delete: () => ({ promise: promiseSpy }),
+        get: () => ({ promise: () => Promise.resolve({ id: 911 }) }),
+      };
+
+      const actual = await DynamoDb(client, params).delete(100);
 
       expect(actual).toEqual(Either.Left('Error unable to connect to DynamoDB'));
     });
