@@ -2,6 +2,8 @@ import { compose } from 'ramda';
 
 import { NotFoundError } from '../utils';
 
+const ID_IN_REQUEST_ERROR_MESSAGE = 'Cannot include id in request body';
+
 const serverError = ctx => errorMessage => ctx.throw(500, errorMessage);
 
 const setBody = ctx => data => {
@@ -40,9 +42,25 @@ export const get = db => async ctx => {
 };
 
 export const post = db => async ctx => {
-  if (ctx.request.body.id) return badRequest(ctx, 'Cannot include id in request body');
+  if (ctx.request.body.id) return badRequest(ctx, ID_IN_REQUEST_ERROR_MESSAGE);
 
   const result = await db.create(ctx.request.body);
   result.fold(serverError(ctx), compose(setStatus(201), setBody(ctx)));
+  return ctx;
+};
+
+export const put = db => async ctx => {
+  const { id } = ctx.params;
+  const { body } = ctx.request;
+
+  if (body.id) return badRequest(ctx, ID_IN_REQUEST_ERROR_MESSAGE);
+
+  const exists = db.readById(id);
+
+  exists.fold(mapError(ctx), async function performUpdate() {
+    const result = await db.update(id, body);
+    result.fold(serverError(ctx), setBody(ctx));
+  });
+
   return ctx;
 };
