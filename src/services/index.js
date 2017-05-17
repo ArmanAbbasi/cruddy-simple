@@ -57,3 +57,10 @@ export const put = db => async ctx => {
   result.fold(mapError(ctx), setBody(ctx));
   return ctx;
 };
+
+export const destroy = db => async ctx => {
+  const { id } = ctx.params;
+  const result = await db.delete(id);
+  result.fold(mapError(ctx), setBody(ctx));
+  return ctx;
+};

@@ -2,7 +2,7 @@ import Either from 'data.either';
 
 import { NotFoundError } from '../utils';
 
-import { get, getAll, post, put } from './';
+import { destroy, get, getAll, post, put } from './';
 
 describe('Services', () => {
   describe('.getAll', () => {
@@ -183,6 +183,49 @@ describe('Services', () => {
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
 
       const actual = await put(db)(ctx);
+      expect(actual.body).toEqual({
+        id: 100,
+        whatever: 'trevor',
+      });
+    });
+  });
+
+  describe('.destroy', () => {
+    it('calls db delete with given id', () => {
+      const ctx = { params: { id: 100 } };
+      const deleteSpy = jest.fn();
+      const db = { delete: deleteSpy };
+
+      destroy(db)(ctx);
+      expect(deleteSpy).toHaveBeenCalledWith(100);
+    });
+
+    it('calls ctx throw with 500 and error message when delete returns an error', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
+      const deleteSpy = () => Either.Left('Error could not connect to database');
+      const db = { delete: deleteSpy };
+
+      await destroy(db)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
+    });
+
+    it('calls ctx throw with 404 when delete returns an not found error', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
+      const deleteSpy = () => Either.Left(new NotFoundError());
+      const db = { delete: deleteSpy };
+
+      await destroy(db)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(404);
+    });
+
+    it('returns ctx with body set to result of delete when successful', async () => {
+      const deleteSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
+      const db = { delete: deleteSpy };
+      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
+
+      const actual = await destroy(db)(ctx);
       expect(actual.body).toEqual({
         id: 100,
         whatever: 'trevor',
