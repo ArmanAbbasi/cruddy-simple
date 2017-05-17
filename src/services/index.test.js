@@ -149,37 +149,9 @@ describe('Services', () => {
       expect(throwSpy).toHaveBeenCalledWith(400, 'Cannot include id in request body');
     });
 
-    it('calls db readById with context params id', () => {
-      const readByIdSpy = jest.fn(() => Either.Right());
-      const db = { update: () => Either.Right(), readById: readByIdSpy };
-      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
-      put(db)(ctx);
-      expect(readByIdSpy).toHaveBeenCalledWith(100);
-    });
-
-    it('calls ctx throw with 500 and error message when readById fails', async () => {
-      const throwSpy = jest.fn();
-      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
-      const updateSpy = () => {};
-      const db = { update: updateSpy, readById: () => Either.Left('Error could not connect to database') };
-
-      await put(db)(ctx);
-      expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
-    });
-
-    it('calls ctx throw with 404 when readById return NotFoundError', async () => {
-      const throwSpy = jest.fn();
-      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
-      const updateSpy = () => {};
-      const db = { update: updateSpy, readById: () => Either.Left(new NotFoundError()) };
-
-      await put(db)(ctx);
-      expect(throwSpy).toHaveBeenCalledWith(404);
-    });
-
     it('calls db update with context params id and request body when group exists', () => {
       const updateSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
-      const db = { update: updateSpy, readById: () => Either.Right() };
+      const db = { update: updateSpy };
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
       put(db)(ctx);
       expect(updateSpy).toHaveBeenCalledWith(100, { whatever: 'trevor' });
@@ -189,15 +161,25 @@ describe('Services', () => {
       const throwSpy = jest.fn();
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
       const updateSpy = () => Either.Left('Error could not connect to database');
-      const db = { update: updateSpy, readById: () => Either.Right() };
+      const db = { update: updateSpy };
 
       await put(db)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
     });
 
+    it('calls ctx throw with 404 when update returns an not found error', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
+      const updateSpy = () => Either.Left(new NotFoundError());
+      const db = { update: updateSpy };
+
+      await put(db)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(404);
+    });
+
     it('returns ctx with body set to result of update when successful', async () => {
       const updateSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
-      const db = { update: updateSpy, readById: () => Either.Right() };
+      const db = { update: updateSpy };
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
 
       const actual = await put(db)(ctx);

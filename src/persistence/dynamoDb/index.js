@@ -35,7 +35,15 @@ const upsert = async (client, params, item) => {
 
 const create = (client, params, createId) => async item => upsert(client, params, { ...item, id: createId() });
 
-const update = (client, params) => async (id, item) => upsert(client, params, { ...item, id });
+const update = (client, params) => async (id, item) => {
+  const result = await readById(client, params)(id);
+
+  if (result.isLeft) return result;
+
+  const Item = { ...item, id };
+
+  return upsert(client, params, Item);
+};
 
 export default (client, params, createId) => ({
   create: create(client, params, createId),
