@@ -1,4 +1,6 @@
 import Either from 'data.either';
+import { NotFoundError } from '../../utils';
+
 import DynamoDb from './';
 
 describe('Dynamo DB', () => {
@@ -75,11 +77,19 @@ describe('Dynamo DB', () => {
     });
 
     it('returns success with data when promise resolves', async () => {
-      const promiseSpy = () => Promise.resolve([1, 2, 3]);
+      const promiseSpy = () => Promise.resolve([1]);
       const client = { get: () => ({ promise: promiseSpy }) };
 
       const actual = await DynamoDb(client, params).readById();
-      expect(actual).toEqual(Either.Right([1, 2, 3]));
+      expect(actual).toEqual(Either.Right([1]));
+    });
+
+    it('returns not found error when promise resolves to no data', async () => {
+      const promiseSpy = () => Promise.resolve([]);
+      const client = { get: () => ({ promise: promiseSpy }) };
+
+      const actual = await DynamoDb(client, params).readById();
+      expect(actual).toEqual(Either.Left(new NotFoundError()));
     });
 
     it('returns error with message when promise rejects', async () => {

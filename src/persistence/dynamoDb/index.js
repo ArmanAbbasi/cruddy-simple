@@ -1,17 +1,28 @@
 import Either from 'data.either';
+import { isEmpty } from 'ramda';
 
-const executePromise = async promise => {
+import { NotFoundError } from '../../utils';
+
+const read = (client, params) => async () => {
   try {
-    const data = await promise();
+    const data = await client.scan(params).promise();
     return Either.Right(data);
   } catch (e) {
     return Either.Left(e);
   }
 };
 
-const read = (client, params) => () => executePromise(client.scan(params).promise);
+const readById = (client, params) => async id => {
+  try {
+    const data = await client.get({ Key: { id }, ...params }).promise();
 
-const readById = (client, params) => id => executePromise(client.get({ Key: { id }, ...params }).promise);
+    if (isEmpty(data)) return Either.Left(new NotFoundError());
+
+    return Either.Right(data);
+  } catch (e) {
+    return Either.Left(e);
+  }
+};
 
 const upsert = async (client, params, item) => {
   try {
