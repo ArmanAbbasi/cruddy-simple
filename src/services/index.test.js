@@ -1,5 +1,7 @@
 import Either from 'data.either';
 
+import { NotFoundError } from '../utils';
+
 import { get, getAll, post } from './';
 
 describe('Services', () => {
@@ -72,10 +74,10 @@ describe('Services', () => {
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error no group found');
     });
 
-    it('calls ctx throw with 404 when readById returns an empty item', async () => {
+    it('calls ctx throw with 404 when readById returns a NotFoundError', async () => {
       const throwSpy = jest.fn();
       const ctx = { params: { id: 100 }, throw: throwSpy };
-      const readByIdSpy = jest.fn(() => Either.Right({}));
+      const readByIdSpy = jest.fn(() => Either.Left(new NotFoundError()));
       const db = { readById: readByIdSpy };
 
       await get(db)(ctx);

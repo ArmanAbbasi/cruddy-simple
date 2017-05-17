@@ -1,5 +1,7 @@
 import { compose } from 'ramda';
 
+import { NotFoundError } from '../utils';
+
 const serverError = ctx => errorMessage => ctx.throw(500, errorMessage);
 
 const setBody = ctx => data => {
@@ -16,6 +18,14 @@ const notFoundError = ctx => ctx.throw(404);
 
 const badRequest = (ctx, errorMessage) => ctx.throw(400, errorMessage);
 
+const mapError = ctx => error => {
+  if (error instanceof NotFoundError) {
+    return notFoundError(ctx);
+  }
+
+  return serverError(ctx)(error);
+};
+
 export const getAll = db => async ctx => {
   const result = await db.read();
   result.fold(serverError(ctx), setBody(ctx));
@@ -25,12 +35,7 @@ export const getAll = db => async ctx => {
 export const get = db => async ctx => {
   const { id } = ctx.params;
   const result = await db.readById(id);
-  result.fold(serverError(ctx), group => {
-    if (!group.Item) {
-      return notFoundError(ctx);
-    }
-    return setBody(ctx)(group);
-  });
+  result.fold(mapError(ctx), setBody(ctx));
   return ctx;
 };
 
