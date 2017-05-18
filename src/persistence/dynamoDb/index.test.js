@@ -251,7 +251,7 @@ describe('Dynamo DB', () => {
 
       await DynamoDb(client, params).delete(100);
 
-      expect(deleteSpy).toHaveBeenCalledWith({ table: 'hello', ReturnValues: 'ALL_OLD', Key: { id: 100 } });
+      expect(deleteSpy).toHaveBeenCalledWith({ table: 'hello', Key: { id: 100 } });
     });
 
     it('returns item that has been deleted when successful', async () => {

@@ -49,7 +49,7 @@ const destroy = (client, params) => async id => {
   if (result.isLeft) return result;
 
   try {
-    const deletedItem = await client.delete({ ...params, Key: { id }, ReturnValues: 'ALL_OLD' }).promise();
+    const deletedItem = await client.delete({ ...params, Key: { id } }).promise();
     return Either.Right(deletedItem);
   } catch (e) {
     return Either.Left(e);
