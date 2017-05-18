@@ -7,9 +7,10 @@ import Ajv from 'ajv';
 import routes from '../routes';
 import { validateBodyWithSchema, validateContentType } from '../services';
 
-export default schema => (db, host, port, endpoint) => {
+export default (schema, config) => db => {
+  const { host, port, resource } = config;
   const app = new Koa();
-  const koaRouter = new KoaRouter({ prefix: `/${endpoint}` });
+  const koaRouter = new KoaRouter({ prefix: `/${resource}` });
   const router = routes(koaRouter, db);
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
