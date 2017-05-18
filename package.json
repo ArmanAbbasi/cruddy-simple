@@ -45,6 +45,7 @@
     ]
   },
   "dependencies": {
+    "ajv": "^5.1.1",
     "aws-sdk": "^2.50.0",
     "data.either": "^1.5.0",
     "koa": "^2.2.0",
