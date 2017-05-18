@@ -4,7 +4,7 @@ import { NotFoundError } from '../utils';
 
 const ID_IN_REQUEST_ERROR_MESSAGE = 'Cannot include id in request body';
 
-const serverError = ctx => errorMessage => ctx.throw(500, errorMessage);
+const serverError = ctx => error => ctx.throw(500, error.message);
 
 const setBody = ctx => data => {
   ctx.body = data;
@@ -16,12 +16,12 @@ const setStatus = statusCode => ctx => {
   return ctx;
 };
 
-const notFoundError = ctx => ctx.throw(404);
+const notFound = ctx => ctx.throw(404);
 
-const badRequest = (ctx, errorMessage) => ctx.throw(400, errorMessage);
+const badRequest = (ctx, message) => ctx.throw(400, message);
 
 const mapError = ctx => error => {
-  if (error instanceof NotFoundError) return notFoundError(ctx);
+  if (error instanceof NotFoundError) return notFound(ctx);
 
   return serverError(ctx)(error);
 };

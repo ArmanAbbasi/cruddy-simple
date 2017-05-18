@@ -33,7 +33,7 @@ describe('Services', () => {
       const throwSpy = jest.fn();
       const ctx = { throw: throwSpy };
       const db = {
-        read: () => Promise.resolve(Either.Left('Error not connected to Database')),
+        read: () => Promise.resolve(Either.Left(new Error('Error not connected to Database'))),
       };
       await getAll(db)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error not connected to Database');
@@ -67,7 +67,7 @@ describe('Services', () => {
     it('calls ctx throw with 500 and error message when readById returns an error', async () => {
       const throwSpy = jest.fn();
       const ctx = { params: { id: 100 }, throw: throwSpy };
-      const readByIdSpy = jest.fn(() => Either.Left('Error no group found'));
+      const readByIdSpy = jest.fn(() => Either.Left(new Error('Error no group found')));
       const db = { readById: readByIdSpy };
 
       await get(db)(ctx);
@@ -97,7 +97,7 @@ describe('Services', () => {
     it('calls ctx throw with 500 and error message when create returns an error', async () => {
       const throwSpy = jest.fn();
       const ctx = { request: { body: { whatever: 'trevor' } }, throw: throwSpy };
-      const createSpy = () => Either.Left('Error could not connect to database');
+      const createSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { create: createSpy };
 
       await post(db)(ctx);
@@ -160,7 +160,7 @@ describe('Services', () => {
     it('calls ctx throw with 500 and error message when update returns an error', async () => {
       const throwSpy = jest.fn();
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
-      const updateSpy = () => Either.Left('Error could not connect to database');
+      const updateSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { update: updateSpy };
 
       await put(db)(ctx);
@@ -203,7 +203,7 @@ describe('Services', () => {
     it('calls ctx throw with 500 and error message when delete returns an error', async () => {
       const throwSpy = jest.fn();
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
-      const deleteSpy = () => Either.Left('Error could not connect to database');
+      const deleteSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { delete: deleteSpy };
 
       await destroy(db)(ctx);
