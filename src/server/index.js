@@ -7,7 +7,7 @@ import routes from '../routes';
 
 export default (db, host, port, endpoint) => {
   const app = new Koa();
-  const koaRouter = new KoaRouter({ prefix: endpoint });
+  const koaRouter = new KoaRouter({ prefix: `/${endpoint}` });
   const router = routes(koaRouter, db);
 
   app.use(cors());
