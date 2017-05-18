@@ -1,15 +1,17 @@
 import React from 'react';
 import { render } from 'react-dom';
 
-import App from './components/App.jsx';
+import All from './components/All.jsx';
+import Single from './components/Single.jsx';
 
-const formData = window.__data__;
+const data = window.__data__;
 const schema = window.__schema__;
 
+const App = Array.isArray(data) ? All : Single;
 render(
   (<App
     schema={schema}
-    formData={formData}
+    data={data}
   />),
   document.getElementById('app')
 );

@@ -17,6 +17,10 @@ export default (schema, config) => db => {
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
   app.use(serve('./build'));
+  app.use(async (ctx, next) => {
+    console.log('method:', ctx.request.method, 'body:', ctx.request.body);
+    return next();
+  });
   app.use(cors());
   app.use(bodyParser());
   app.use(validateContentType('application/json'));

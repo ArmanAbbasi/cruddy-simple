@@ -3,7 +3,8 @@ import { renderToString } from 'react-dom/server';
 
 import schema from '../schema/option-group';
 
-import App from '../ui/components/App';
+import Single from '../ui/components/Single.jsx';
+import All from '../ui/components/All.jsx';
 import html from '../ui/html';
 
 import { destroy, get, getAll, post, put } from '../services';
@@ -14,7 +15,9 @@ export const getAdmin = db => async ctx => {
   result.fold(
     e => ctx.throw(500, 'WTF'),
     async data => {
-      const appString = await renderToString(<App schema={schema} formData={data} />);
+      console.log('*'.repeat(1000));
+
+      const appString = await renderToString(<Single schema={schema} data={data} />);
       ctx.body = html(appString, schema, data);
     }
   );
@@ -27,12 +30,8 @@ export const getAllAdmin = db => async ctx => {
   result.fold(
     e => ctx.throw(500, e.message),
     async data => {
-      const allSchema = {
-        type: 'array',
-        items: schema,
-      };
-      const appString = await renderToString(<App schema={allSchema} formData={data} />);
-      ctx.body = html(appString, allSchema, data);
+      const appString = await renderToString(<All schema={schema} data={data} />);
+      ctx.body = html(appString, schema, data);
     }
   );
   return ctx;
