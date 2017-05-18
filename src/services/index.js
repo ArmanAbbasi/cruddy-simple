@@ -71,3 +71,14 @@ export const validateContentType = type => async (ctx, next) => {
 
   return next();
 };
+
+export const validateBodyWithSchema = validator => async (ctx, next) => {
+  if (ctx.request.body) {
+    var valid = validator(ctx.request.body);
+    if (!valid) {
+      ctx.throw(400, JSON.stringify(validator.errors, null, 2));
+    }
+  }
+
+  return next();
+};
