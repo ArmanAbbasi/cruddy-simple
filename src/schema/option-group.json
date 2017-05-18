@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "properties": {
+    "contains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string"
+          }
+        },
+        "required": ["uri"]
+      }
+    },
+    "id": {
+      "type": "string"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "rel": {
+            "type": "string",
+            "enum": ["content", "self"]
+          }
+        },
+        "required": ["href", "rel"]
+      }
+    },
+    "name": {
+      "type": "object",
+      "properties": {
+        "en": {
+          "type": "string"
+        },
+        "fr": {
+          "type": "string"
+        }
+      },
+      "required": ["en", "fr"]
+    }
+  },
+  "required": ["contains", "links", "name"]
+}

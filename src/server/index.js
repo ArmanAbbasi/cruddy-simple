@@ -2,6 +2,7 @@ import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import cors from 'koa-cors';
 import bodyParser from 'koa-bodyparser';
+import serve from 'koa-static';
 import Ajv from 'ajv';
 
 import routes from '../routes';
@@ -15,6 +16,7 @@ export default (schema, config) => db => {
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
+  app.use(serve('./build'));
   app.use(cors());
   app.use(bodyParser());
   app.use(validateContentType('application/json'));
