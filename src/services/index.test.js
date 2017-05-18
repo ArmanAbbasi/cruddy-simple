@@ -269,17 +269,17 @@ describe('Services', () => {
 
   describe('.validateBodyWithSchema', () => {
     const noop = () => {};
-    describe('when the request does not have a body', () => {
+    describe('when the request body is empty', () => {
       it('calls next', () => {
         const next = jest.fn();
-        const ctx = { request: {} };
+        const ctx = { request: { body: {} } };
         validateBodyWithSchema(noop)(ctx, next);
         expect(next).toHaveBeenCalled();
       });
 
       it('does not call validator', () => {
         const validator = jest.fn();
-        const ctx = { request: {} };
+        const ctx = { request: { body: {} } };
         validateBodyWithSchema(validator)(ctx, noop);
         expect(validator).not.toHaveBeenCalled();
       });
