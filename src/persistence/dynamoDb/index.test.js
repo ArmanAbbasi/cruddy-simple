@@ -32,8 +32,8 @@ describe('Dynamo DB', () => {
       expect(promiseSpy).toHaveBeenCalled();
     });
 
-    it('returns success with data when promise resolves', async () => {
-      const promiseSpy = () => Promise.resolve([1, 2, 3]);
+    it('returns success with Items from data when promise resolves', async () => {
+      const promiseSpy = () => Promise.resolve({ Items: [1, 2, 3] });
       const client = { scan: () => ({ promise: promiseSpy }) };
 
       const actual = await DynamoDb(client, params).read();
@@ -76,8 +76,8 @@ describe('Dynamo DB', () => {
       expect(promiseSpy).toHaveBeenCalled();
     });
 
-    it('returns success with data when promise resolves', async () => {
-      const promiseSpy = () => Promise.resolve([1]);
+    it('returns success with Item from data when promise resolves', async () => {
+      const promiseSpy = () => Promise.resolve({ Item: [1] });
       const client = { get: () => ({ promise: promiseSpy }) };
 
       const actual = await DynamoDb(client, params).readById();

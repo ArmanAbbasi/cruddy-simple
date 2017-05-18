@@ -6,7 +6,7 @@ import { NotFoundError } from '../../utils';
 const read = (client, params) => async () => {
   try {
     const data = await client.scan(params).promise();
-    return Either.Right(data);
+    return Either.Right(data.Items);
   } catch (e) {
     return Either.Left(e);
   }
@@ -18,7 +18,7 @@ const readById = (client, params) => async id => {
 
     if (isEmpty(data)) return Either.Left(new NotFoundError());
 
-    return Either.Right(data);
+    return Either.Right(data.Item);
   } catch (e) {
     return Either.Left(e);
   }
