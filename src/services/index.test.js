@@ -193,7 +193,7 @@ describe('Services', () => {
   describe('.destroy', () => {
     it('calls db delete with given id', () => {
       const ctx = { params: { id: 100 } };
-      const deleteSpy = jest.fn();
+      const deleteSpy = jest.fn(() => Either.Right());
       const db = { delete: deleteSpy };
 
       destroy(db)(ctx);
