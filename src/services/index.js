@@ -64,3 +64,10 @@ export const destroy = db => async ctx => {
   result.fold(mapError(ctx), setBody(ctx));
   return ctx;
 };
+
+export const validateContentType = type => async (ctx, next) => {
+  const valid = ctx.is(type);
+  if (valid === false) return ctx.throw(400, `Error content type must be ${type}`);
+
+  return next();
+};

@@ -4,6 +4,7 @@ import cors from 'koa-cors';
 import bodyParser from 'koa-bodyparser';
 
 import routes from '../routes';
+import { validateContentType } from '../services';
 
 export default (db, host, port, endpoint) => {
   const app = new Koa();
@@ -12,6 +13,7 @@ export default (db, host, port, endpoint) => {
 
   app.use(cors());
   app.use(bodyParser());
+  app.use(validateContentType('application/json'));
   app.use(router.routes());
 
   return app.listen(port, () => console.log({ message: `Server running at ${host}:${port}` }));

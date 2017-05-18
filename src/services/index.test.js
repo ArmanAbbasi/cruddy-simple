@@ -2,7 +2,7 @@ import Either from 'data.either';
 
 import { NotFoundError } from '../utils';
 
-import { destroy, get, getAll, post, put } from './';
+import { destroy, get, getAll, post, put, validateContentType } from './';
 
 describe('Services', () => {
   describe('.getAll', () => {
@@ -230,6 +230,40 @@ describe('Services', () => {
         id: 100,
         whatever: 'trevor',
       });
+    });
+  });
+
+  describe('.validateContentType', () => {
+    const type = 'application/json';
+    it('calls ctx.is with given type', () => {
+      const isSpy = jest.fn();
+      const ctx = { is: isSpy };
+      validateContentType(type)(ctx, () => {});
+      expect(isSpy).toHaveBeenCalledWith(type);
+    });
+
+    it('calls ctx throw with 400 and message when ctx is returns false', () => {
+      const throwSpy = jest.fn();
+      const ctx = {
+        is: () => false,
+        throw: throwSpy,
+      };
+      validateContentType(type)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(400, 'Error content type must be application/json');
+    });
+
+    it('calls next when ctx is returns null', () => {
+      const ctx = { is: () => null };
+      const nextSpy = jest.fn();
+      validateContentType(type)(ctx, nextSpy);
+      expect(nextSpy).toHaveBeenCalled();
+    });
+
+    it('calls next when ctx is returns true', () => {
+      const ctx = { is: () => true };
+      const nextSpy = jest.fn();
+      validateContentType(type)(ctx, nextSpy);
+      expect(nextSpy).toHaveBeenCalled();
     });
   });
 });
