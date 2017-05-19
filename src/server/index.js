@@ -17,7 +17,7 @@ export default (schema, config, swaggerDoc, credentials, logger, analytics) => d
   const app = new Koa();
 
   const koaRouter = new KoaRouter({ prefix: `/${resource}` });
-  const router = routes(koaRouter, db, credentials, logger);
+  const router = routes(koaRouter, db, logger);
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
