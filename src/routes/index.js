@@ -1,15 +1,15 @@
 import { destroy, get, getAll, post, put } from '../services';
 
-export default (router, db) => {
-  router.get('/', getAll(db));
+export default (router, db, logger) => {
+  router.get('/', getAll(db, logger));
 
-  router.get('/:id', get(db));
+  router.get('/:id', get(db, logger));
 
-  router.post('/', post(db));
+  router.post('/', post(db, logger));
 
-  router.put('/:id', put(db));
+  router.put('/:id', put(db, logger));
 
-  router.delete('/:id', destroy(db));
+  router.delete('/:id', destroy(db, logger));
 
   return router;
 };

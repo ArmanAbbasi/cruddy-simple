@@ -4,7 +4,10 @@ import { NotFoundError } from '../utils';
 
 const ID_IN_REQUEST_ERROR_MESSAGE = 'Cannot include id in request body';
 
-const serverError = ctx => error => ctx.throw(500, error.message);
+const serverError = (ctx, logger) => error => {
+  logger.error(`ERROR: ${error.message}`);
+  return ctx.throw(500, error.message);
+};
 
 const setBody = ctx => data => {
   ctx.body = data;
@@ -20,48 +23,48 @@ const notFound = ctx => ctx.throw(404);
 
 const badRequest = (ctx, message) => ctx.throw(400, message);
 
-const mapError = ctx => error => {
+const mapError = (ctx, logger) => error => {
   if (error instanceof NotFoundError) return notFound(ctx);
 
-  return serverError(ctx)(error);
+  return serverError(ctx, logger)(error);
 };
 
-export const getAll = db => async ctx => {
+export const getAll = (db, logger) => async ctx => {
   const result = await db.read();
-  result.fold(mapError(ctx), setBody(ctx));
+  result.fold(mapError(ctx, logger), setBody(ctx));
   return ctx;
 };
 
-export const get = db => async ctx => {
+export const get = (db, logger) => async ctx => {
   const { id } = ctx.params;
   const result = await db.readById(id);
-  result.fold(mapError(ctx), setBody(ctx));
+  result.fold(mapError(ctx, logger), setBody(ctx));
   return ctx;
 };
 
-export const post = db => async ctx => {
+export const post = (db, logger) => async ctx => {
   if (ctx.request.body.id) return badRequest(ctx, ID_IN_REQUEST_ERROR_MESSAGE);
 
   const result = await db.create(ctx.request.body);
-  result.fold(mapError(ctx), compose(setStatus(201), setBody(ctx)));
+  result.fold(mapError(ctx, logger), compose(setStatus(201), setBody(ctx)));
   return ctx;
 };
 
-export const put = db => async ctx => {
+export const put = (db, logger) => async ctx => {
   const { id } = ctx.params;
   const { body } = ctx.request;
 
   if (body.id) return badRequest(ctx, ID_IN_REQUEST_ERROR_MESSAGE);
 
   const result = await db.update(id, body);
-  result.fold(mapError(ctx), setBody(ctx));
+  result.fold(mapError(ctx, logger), setBody(ctx));
   return ctx;
 };
 
-export const destroy = db => async ctx => {
+export const destroy = (db, logger) => async ctx => {
   const { id } = ctx.params;
   const result = await db.delete(id);
-  result.fold(mapError(ctx), setBody(ctx));
+  result.fold(mapError(ctx, logger), setBody(ctx));
   return ctx;
 };
 

@@ -5,18 +5,20 @@ import { NotFoundError } from '../utils';
 import { destroy, get, getAll, post, put, validateBodyWithSchema, validateContentType } from './';
 
 describe('Services', () => {
+  const noop = () => {};
+
   describe('.getAll', () => {
     it('returns given context', async () => {
       const ctx = {};
       const db = { read: () => Promise.resolve(Either.Right([])) };
-      const actual = await getAll(db)(ctx);
+      const actual = await getAll(db, noop)(ctx);
       expect(actual).toBe(ctx);
     });
 
     it('returns context body as empty array when no options exist', async () => {
       const ctx = {};
       const db = { read: () => Promise.resolve(Either.Right([])) };
-      const { body } = await getAll(db)(ctx);
+      const { body } = await getAll(db, noop)(ctx);
       expect(body).toEqual([]);
     });
 
@@ -25,7 +27,7 @@ describe('Services', () => {
       const db = {
         read: () => Promise.resolve(Either.Right([{ id: 1 }, { id: 2 }, { id: 3 }])),
       };
-      const { body } = await getAll(db)(ctx);
+      const { body } = await getAll(db, noop)(ctx);
       expect(body).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
     });
 
@@ -35,8 +37,18 @@ describe('Services', () => {
       const db = {
         read: () => Promise.resolve(Either.Left(new Error('Error not connected to Database'))),
       };
-      await getAll(db)(ctx);
+      await getAll(db, { error: noop })(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error not connected to Database');
+    });
+
+    it('calls logger error with error message when database returns an error', async () => {
+      const ctx = { throw: noop };
+      const errorSpy = jest.fn();
+      const db = {
+        read: () => Promise.resolve(Either.Left(new Error('Error not connected to Database'))),
+      };
+      await getAll(db, { error: errorSpy })(ctx);
+      expect(errorSpy).toHaveBeenCalledWith('ERROR: Error not connected to Database');
     });
   });
 
@@ -46,7 +58,7 @@ describe('Services', () => {
       const readByIdSpy = jest.fn(() => Either.Right({ Item: { id: 100, name: 'Shape' } }));
       const db = { readById: readByIdSpy };
 
-      await get(db)(ctx);
+      await get(db, noop)(ctx);
 
       expect(readByIdSpy).toHaveBeenCalledWith(100);
     });
@@ -56,7 +68,7 @@ describe('Services', () => {
       const readByIdSpy = jest.fn(() => Either.Right({ Item: { id: 100, name: 'Shape' } }));
       const db = { readById: readByIdSpy };
 
-      const actual = await get(db)(ctx);
+      const actual = await get(db, noop)(ctx);
 
       expect(actual).toEqual({
         params: { id: 100 },
@@ -70,7 +82,7 @@ describe('Services', () => {
       const readByIdSpy = jest.fn(() => Either.Left(new Error('Error no group found')));
       const db = { readById: readByIdSpy };
 
-      await get(db)(ctx);
+      await get(db, { error: noop })(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error no group found');
     });
 
@@ -80,8 +92,18 @@ describe('Services', () => {
       const readByIdSpy = jest.fn(() => Either.Left(new NotFoundError()));
       const db = { readById: readByIdSpy };
 
-      await get(db)(ctx);
+      await get(db, noop)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(404);
+    });
+
+    it('calls logger error with error message when database returns an error', async () => {
+      const ctx = { params: { id: 100 }, throw: noop };
+      const errorSpy = jest.fn();
+      const readByIdSpy = jest.fn(() => Either.Left(new Error('Error no data found')));
+      const db = { readById: readByIdSpy };
+
+      await get(db, { error: errorSpy })(ctx);
+      expect(errorSpy).toHaveBeenCalledWith('ERROR: Error no data found');
     });
   });
 
@@ -90,8 +112,19 @@ describe('Services', () => {
       const createSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
       const db = { create: createSpy };
       const ctx = { request: { body: { whatever: 'trevor' } } };
-      post(db)(ctx);
+      post(db, noop)(ctx);
       expect(createSpy).toHaveBeenCalledWith({ whatever: 'trevor' });
+    });
+
+    it('calls logger error with error message when database returns an error', async () => {
+      const errorSpy = jest.fn();
+
+      const ctx = { request: { body: { whatever: 'trevor' } }, throw: noop };
+      const createSpy = () => Either.Left(new Error('Error could not connect to database'));
+      const db = { create: createSpy };
+
+      await post(db, { error: errorSpy })(ctx);
+      expect(errorSpy).toHaveBeenCalledWith('ERROR: Error could not connect to database');
     });
 
     it('calls ctx throw with 500 and error message when create returns an error', async () => {
@@ -100,7 +133,7 @@ describe('Services', () => {
       const createSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { create: createSpy };
 
-      await post(db)(ctx);
+      await post(db, { error: noop })(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
     });
 
@@ -109,7 +142,7 @@ describe('Services', () => {
       const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
       const db = { create: createSpy };
 
-      const actual = await post(db)(ctx);
+      const actual = await post(db, noop)(ctx);
       expect(actual.body).toEqual({
         id: 100,
         whatever: 'trevor',
@@ -121,7 +154,7 @@ describe('Services', () => {
       const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
       const db = { create: createSpy };
 
-      const actual = await post(db)(ctx);
+      const actual = await post(db, noop)(ctx);
       expect(actual.status).toBe(201);
     });
 
@@ -132,7 +165,7 @@ describe('Services', () => {
       const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
       const db = { create: createSpy };
 
-      await post(db)(ctx);
+      await post(db, noop)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(400, 'Cannot include id in request body');
     });
   });
@@ -145,7 +178,7 @@ describe('Services', () => {
       const updateSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
       const db = { update: updateSpy };
 
-      await put(db)(ctx);
+      await put(db, noop)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(400, 'Cannot include id in request body');
     });
 
@@ -153,7 +186,7 @@ describe('Services', () => {
       const updateSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
       const db = { update: updateSpy };
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
-      put(db)(ctx);
+      put(db, noop)(ctx);
       expect(updateSpy).toHaveBeenCalledWith(100, { whatever: 'trevor' });
     });
 
@@ -163,8 +196,18 @@ describe('Services', () => {
       const updateSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { update: updateSpy };
 
-      await put(db)(ctx);
+      await put(db, { error: noop })(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
+    });
+
+    it('calls logger error with error message when database returns an error', async () => {
+      const errorSpy = jest.fn();
+      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: noop };
+      const updateSpy = () => Either.Left(new Error('Error could not connect to database'));
+      const db = { update: updateSpy };
+
+      await put(db, { error: errorSpy })(ctx);
+      expect(errorSpy).toHaveBeenCalledWith('ERROR: Error could not connect to database');
     });
 
     it('calls ctx throw with 404 when update returns an not found error', async () => {
@@ -173,7 +216,7 @@ describe('Services', () => {
       const updateSpy = () => Either.Left(new NotFoundError());
       const db = { update: updateSpy };
 
-      await put(db)(ctx);
+      await put(db, noop)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(404);
     });
 
@@ -182,7 +225,7 @@ describe('Services', () => {
       const db = { update: updateSpy };
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
 
-      const actual = await put(db)(ctx);
+      const actual = await put(db, noop)(ctx);
       expect(actual.body).toEqual({
         id: 100,
         whatever: 'trevor',
@@ -196,7 +239,7 @@ describe('Services', () => {
       const deleteSpy = jest.fn(() => Either.Right());
       const db = { delete: deleteSpy };
 
-      destroy(db)(ctx);
+      destroy(db, noop)(ctx);
       expect(deleteSpy).toHaveBeenCalledWith(100);
     });
 
@@ -206,8 +249,18 @@ describe('Services', () => {
       const deleteSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { delete: deleteSpy };
 
-      await destroy(db)(ctx);
+      await destroy(db, { error: noop })(ctx);
       expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
+    });
+
+    it('calls logger error with error message when database returns an error', async () => {
+      const errorSpy = jest.fn();
+      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } }, throw: noop };
+      const deleteSpy = () => Either.Left(new Error('Error could not connect to database'));
+      const db = { delete: deleteSpy };
+
+      await destroy(db, { error: errorSpy })(ctx);
+      expect(errorSpy).toHaveBeenCalledWith('ERROR: Error could not connect to database');
     });
 
     it('calls ctx throw with 404 when delete returns an not found error', async () => {
@@ -216,7 +269,7 @@ describe('Services', () => {
       const deleteSpy = () => Either.Left(new NotFoundError());
       const db = { delete: deleteSpy };
 
-      await destroy(db)(ctx);
+      await destroy(db, noop)(ctx);
       expect(throwSpy).toHaveBeenCalledWith(404);
     });
 
@@ -225,7 +278,7 @@ describe('Services', () => {
       const db = { delete: deleteSpy };
       const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
 
-      const actual = await destroy(db)(ctx);
+      const actual = await destroy(db, noop)(ctx);
       expect(actual.body).toEqual({
         id: 100,
         whatever: 'trevor',
