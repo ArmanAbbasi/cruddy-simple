@@ -5,10 +5,12 @@
   "repository": "git@github.com:photobox/ecom-option-group-api.git",
   "author": "Photobox",
   "scripts": {
+    "build": "babel src --out-dir lib --ignore \"**/*.test.js\"",
     "dev": "nodemon src/index.js",
     "lint": "eslint src",
     "precommit": "lint-staged",
     "prettier": "prettier 'src/**/*.js' --write --single-quote=true --print-width=120 --trailing-comma=es5",
+    "start": "node lib/index.js",
     "test": "jest --testRegex='\\.test\\.js$'",
     "test:integration": "jest --testRegex='\\.test\\.int\\.js$'",
     "test:coverage": "yarn test -- --coverage",
