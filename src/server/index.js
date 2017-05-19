@@ -7,11 +7,11 @@ import Ajv from 'ajv';
 import routes from '../routes';
 import { validateBodyWithSchema, validateContentType } from '../services';
 
-export default (schema, config) => db => {
+export default (schema, config, logger) => db => {
   const { host, port, resource } = config;
   const app = new Koa();
   const koaRouter = new KoaRouter({ prefix: `/${resource}` });
-  const router = routes(koaRouter, db);
+  const router = routes(koaRouter, db, logger);
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
@@ -21,5 +21,5 @@ export default (schema, config) => db => {
   app.use(validateBodyWithSchema(validator));
   app.use(router.routes());
 
-  return app.listen(port, () => console.log({ message: `Server running at ${host}:${port}` }));
+  return app.listen(port, () => logger.info(`INFO: Server running at ${host}:${port}`));
 };

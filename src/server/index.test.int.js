@@ -23,7 +23,7 @@ describe('CRUD Server', () => {
     },
     required: ['options'],
   };
-  const app = buildApp(schema, config);
+  const app = buildApp(schema, config, console);
 
   describe(`GET /${resource}`, () => {
     let db;
