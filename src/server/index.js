@@ -12,7 +12,7 @@ export default (schema, config) => db => {
   const { host, port, resource } = config;
   const app = new Koa();
   const koaRouter = new KoaRouter({ prefix: `/${resource}` });
-  const router = routes(koaRouter, db);
+  const router = routes(koaRouter, db, resource);
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 

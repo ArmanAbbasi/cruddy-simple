@@ -1,7 +1,7 @@
 import React from 'react';
 import Form from 'react-jsonschema-form';
 import Create from './Create.jsx';
-
+import Nav from './Nav.jsx';
 
 const CustomTitleField = ({title, required}) => {
   const legend = required ? title + '*' : title;
@@ -12,7 +12,16 @@ const fields = {
   TitleField: CustomTitleField
 };
 
-const All = ({ data, schema }) => {
+function ArrayFieldTemplate(props) {
+  return (
+    <div>
+      <CustomTitleField {...props} />
+      {props.items.map(element => element.children)}
+    </div>
+  );
+}
+
+const All = ({ data, schema, resource }) => {
   const uiSchema = {
   "ui:options":  {
     addable: false,
@@ -23,22 +32,24 @@ const All = ({ data, schema }) => {
 };
   return (
     <div>
-      <Create schema={schema} />
-      <nav>Photobox<button>New</button></nav>
+      <Nav title={`/${resource}`} endpoint={`/${resource}/admin/new`} />
       <div style={{ margin: '0 auto', width: 1000 }}>
         {data.map(d => {
-          return <Form
-            liveValidate
-            schema={schema}
-            formData={d}
-            uiSchema={uiSchema}
-            onChange={() => console.log('change')}
-            onError={() => console.log('error')}
-            onSubmit={() => console.log('Submit')}
-            fields={fields}
-          >
-            <a href={`${d.id}/admin`}>Edit</a>
-          </Form>
+          return (
+            <div style={{ marginBottom: 50, border: '2px solid grey', padding: 10 }}>
+              <a href={`${d.id}/admin`}><h3>{`${d.id}/admin`}</h3></a>
+              <Form
+                liveValidate
+                schema={schema}
+                formData={d}
+                uiSchema={uiSchema}
+                fields={fields}
+                ArrayFieldTemplate={ArrayFieldTemplate}
+              >
+              <a className="btn btn-info" href={`${d.id}/admin`}>Edit</a>
+              </Form>
+            </div>
+          );
         })}
       </div>
     </div>

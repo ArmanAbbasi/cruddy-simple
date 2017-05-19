@@ -10,7 +10,7 @@ import schema from './schema/option-group';
 const url = {
   host: 'localhost',
   port: 8000,
-  resource: 'group',
+  resource: 'option-group',
 };
 
 AWS.config.update({

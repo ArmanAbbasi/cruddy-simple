@@ -1,6 +1,7 @@
 import fetch from 'isomorphic-fetch'
 import React from 'react';
 import Form from 'react-jsonschema-form';
+import Nav from './Nav.jsx';
 
 const CustomTitleField = ({title, required}) => {
   const legend = required ? title + '*' : title;
@@ -19,10 +20,10 @@ const uiSchema = {
   id: {"ui:widget": "hidden"}
 }
 
-const App = ({ schema }) => {
+const App = ({ schema, resource }) => {
   return (
     <div>
-      <nav>Hello</nav>
+      <Nav title={`/${resource}`} />
       <div style={{ margin: '0 auto', width: 1000 }}>
         <Form
           schema={schema}
@@ -33,8 +34,7 @@ const App = ({ schema }) => {
           onSubmit={create}
           fields={fields}
         >
-          <button type="submit">Create</button>
-          <button type="button">Cancel</button>
+          <button className="btn btn-info" type="submit">Create</button>
         </Form>
       </div>
     </div>

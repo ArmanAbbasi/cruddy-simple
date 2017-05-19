@@ -1,4 +1,4 @@
-export default (app, schema, data) => `
+export default (app, schema, data, resource) => `
 <!doctype html>
 <html>
     <head>
@@ -15,6 +15,7 @@ export default (app, schema, data) => `
 
         <script>window.__schema__=${JSON.stringify(schema)}</script>
         <script>window.__data__=${JSON.stringify(data)}</script>
+        <script>window.__resource__=${JSON.stringify(resource)}</script>
 
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
