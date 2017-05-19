@@ -42,6 +42,8 @@ export const get = (db, logger) => async ctx => {
   return ctx;
 };
 
+export const health = ctx => (ctx.body = '"OK"');
+
 export const post = (db, logger) => async ctx => {
   if (ctx.request.body.id) return badRequest(ctx, ID_IN_REQUEST_ERROR_MESSAGE);
 

@@ -1,6 +1,8 @@
-import { destroy, get, getAll, post, put } from '../services';
+import { destroy, get, getAll, health, post, put } from '../services';
 
 export default (router, db, logger) => {
+  router.get('/healthz', health);
+
   router.get('/', getAll(db, logger));
 
   router.get('/:id', get(db, logger));

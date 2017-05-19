@@ -2,7 +2,7 @@ import Either from 'data.either';
 
 import { NotFoundError } from '../utils';
 
-import { destroy, get, getAll, post, put, validateBodyWithSchema, validateContentType } from './';
+import { destroy, get, getAll, health, post, put, validateBodyWithSchema, validateContentType } from './';
 
 describe('Services', () => {
   const noop = () => {};
@@ -104,6 +104,14 @@ describe('Services', () => {
 
       await get(db, { error: errorSpy })(ctx);
       expect(errorSpy).toHaveBeenCalledWith('ERROR: Error no data found');
+    });
+  });
+
+  describe('.health', () => {
+    it('sets context body to stringified OK', async () => {
+      const ctx = {};
+      await health(ctx);
+      expect(ctx.body).toBe('"OK"');
     });
   });
 
