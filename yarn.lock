@@ -1993,6 +1993,12 @@ jest-docblock@^20.0.1:
   version "20.0.1"
   resolved "https://registry.yarnpkg.com/jest-docblock/-/jest-docblock-20.0.1.tgz#055e0bbcb76798198479901f92d2733bf619f854"
 
+jest-each@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/jest-each/-/jest-each-0.2.0.tgz#56a509a60ff4a9fc25c42f00a5eb1f3d34e41cc4"
+  dependencies:
+    sprintf-js "^1.0.3"
+
 jest-environment-jsdom@^20.0.1:
   version "20.0.1"
   resolved "https://registry.yarnpkg.com/jest-environment-jsdom/-/jest-environment-jsdom-20.0.1.tgz#2d29f81368987d387c70ce4f500c6aa560f9b4f7"
@@ -3503,7 +3509,7 @@ split@0.3:
   dependencies:
     through "2"
 
-sprintf-js@~1.0.2:
+sprintf-js@^1.0.3, sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
 

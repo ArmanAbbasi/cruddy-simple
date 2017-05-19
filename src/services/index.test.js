@@ -1,11 +1,44 @@
 import Either from 'data.either';
+import each from 'jest-each';
 
 import { NotFoundError } from '../utils';
 
-import { destroy, get, getAll, health, post, put, validateBodyWithSchema, validateContentType } from './';
+import {
+  authUnsafeMethods,
+  destroy,
+  get,
+  getAll,
+  health,
+  post,
+  put,
+  validateBodyWithSchema,
+  validateContentType,
+} from './';
 
 describe('Services', () => {
   const noop = () => {};
+
+  describe('.authUnsafeMethods', () => {
+    each([
+      ['POST'],
+      ['PUT'],
+      ['DELETE'],
+    ]).it('calls authMiddlware with context and next with request method: %s', method => {
+      const ctx = { request: { method } };
+      const authMiddlwareSpy = jest.fn();
+      const next = noop;
+      authUnsafeMethods(authMiddlwareSpy)(ctx, next);
+      expect(authMiddlwareSpy).toHaveBeenCalledWith(ctx, next);
+    });
+
+    it('calls next when request method is GET', () => {
+      const ctx = { request: { method: 'GET' } };
+      const next = jest.fn();
+      const authMiddlwareSpy = noop;
+      authUnsafeMethods(authMiddlwareSpy)(ctx, next);
+      expect(next).toHaveBeenCalled();
+    });
+  });
 
   describe('.getAll', () => {
     it('returns given context', async () => {

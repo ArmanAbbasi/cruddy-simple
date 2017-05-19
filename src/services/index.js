@@ -29,6 +29,14 @@ const mapError = (ctx, logger) => error => {
   return serverError(ctx, logger)(error);
 };
 
+export const authUnsafeMethods = authMiddleware => async (ctx, next) => {
+  const { method } = ctx.request;
+  if (method !== 'GET') {
+    return await authMiddleware(ctx, next);
+  }
+  return await next();
+};
+
 export const getAll = (db, logger) => async ctx => {
   const result = await db.read();
   result.fold(mapError(ctx, logger), setBody(ctx));
