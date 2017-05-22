@@ -1,8 +1,8 @@
 {
-  "name": "ecom-option-group-api",
+  "name": "cruddy-simple",
   "version": "0.0.1",
-  "description": "API for Option Group microservice Edit",
-  "repository": "git@github.com:photobox/ecom-option-group-api.git",
+  "description": "Node CRUD API",
+  "repository": "git@github.com:photobox/cruddy-simple.git",
   "author": "Photobox",
   "main": "lib/index.js",
   "scripts": {
