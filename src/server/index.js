@@ -23,7 +23,7 @@ export default (schema, config, swaggerDoc, credentials, logger) => db => {
   app.use(bodyParser());
   app.use(validateContentType('application/json'));
   app.use(validateBodyWithSchema(validator));
-  app.use(validate(swaggerDoc));
+  // app.use(validate(swaggerDoc));
   app.use(ui(swaggerDoc, '/swagger'));
   app.use(authUnsafeMethods(auth(credentials)));
   app.use(router.routes());
