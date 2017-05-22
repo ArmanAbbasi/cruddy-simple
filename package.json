@@ -4,8 +4,9 @@
   "description": "API for Option Group microservice Edit",
   "repository": "git@github.com:photobox/ecom-option-group-api.git",
   "author": "Photobox",
+  "main": "lib/index.js",
   "scripts": {
-    "build": "babel src --out-dir lib --ignore \"**/*.test.js\"",
+    "build": "babel src -d lib --ignore \"**/*.test.js\"",
     "dev": "nodemon src/index.js",
     "lint": "eslint src",
     "precommit": "lint-staged",
