@@ -9,10 +9,8 @@ import { validate, ui } from 'swagger2-koa';
 import routes from '../routes';
 import { authUnsafeMethods, validateBodyWithSchema, validateContentType } from '../services';
 
-export default (schema, config, swaggerDoc, credentials, logger, analytics) => db => {
+export default (schema, config, swaggerDoc, credentials, logger) => db => {
   const { host, port, resource } = config;
-
-  analytics();
 
   const app = new Koa();
 
