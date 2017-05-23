@@ -33,31 +33,28 @@ yarn add cruddy-simple
 
 `dynamoDb(client, params, createId)`
 
-`dynamoDb`:
- - client: `Object`. The configured AWS Dynamo Client
- - params: `Object`. An object that contains any values needed by the AWS SDK
- - createId: `Function`. A function that is used to generate unique IDs for new resources
+ - **client**: `Object`. The configured AWS Dynamo Client
+ - **params**: `Object`. An object that contains any values needed by the AWS SDK
+ - **createId**: `Function`. A function that is used to generate unique IDs for new resources
 
 ### Server
 
 `server(schema, config, swaggerDoc, credentials, logger)(db)`
 
-`server`:
-
- - schema: `Object`. JSON Schema object representation of the resource being exposed
- - config: `Object`.
+ - **schema**: `Object`. JSON Schema object representation of the resource being exposed
+ - **config**: `Object`.
    * host: `String`. The hostname of the server
    * port: `Number`. The port the server is to be ran on
    * resource: `String`. The name of the resource endpoint i.e. `users`
- - swaggerDoc: `Object`. An object containing the swagger document to be exposed at `/docs`
- - credentials: `Object`.
+ - **swaggerDoc**: `Object`. An object containing the swagger document to be exposed at `/docs`
+ - **credentials**: `Object`.
    * name: `String`. The basic auth name
    * pass: `String`. The basic auth password
- - logger: `Object`.
+ - **logger**: `Object`.
    * info: `Function`. Logging function for information
    * error: `Function`. Logging function of errors i.e. `Internal Server Error`
    * fatal: `Function`. Logging of fatal errors that cause the application to crash
- - db: `Object`.
+ - **db**: `Object`.
    * create: `Function`: A function to create a resource in the table, used by `POST /` requests
    * read: `Function`: A function to read all resources in the table, used by `GET /` requests
    * readById: `Function`: A function to read a resource by an ID from the table, used by `GET /:id` requests
