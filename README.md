@@ -11,12 +11,12 @@ Generic CRUD Node application. Which takes configuration and provides CRUD on a 
    * `POST /`
    * `PUT /:id`
    * `DELETE /:id`
- - Performs database transactions with given database interface (`create`, `read`, `readById`, `updaate`, `delete`) at the correct routes
+ - Performs database transactions with given database interface (`create`, `read`, `readById`, `update`, `delete`) at the correct routes
  - Supports caching with `eTag`
  - Validates content type to be `application/json`
  - Validates JSON against the resource JSON Schema
  - Validates the API with Swagger
- - Mounts Swagger docs at `/swagger`
+ - Mounts Swagger docs at `/docs`
  - Secures unsafe methods (`PUT`, `POST`, `DELETE`) with basic auth
  - Logging
 
@@ -49,7 +49,7 @@ yarn add cruddy-simple
    * host: `String`. The hostname of the server
    * port: `Number`. The port the server is to be ran on
    * resource: `String`. The name of the resource endpoint i.e. `users`
- - swaggerDoc: `Object`. An object containing the swagger document to be exposed at `/swagger`
+ - swaggerDoc: `Object`. An object containing the swagger document to be exposed at `/docs`
  - credentials: `Object`.
    * name: `String`. The basic auth name
    * pass: `String`. The basic auth password
