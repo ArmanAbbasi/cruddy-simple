@@ -1,7 +1,9 @@
 import Ajv from 'ajv';
 import auth from 'koa-basic-auth';
 import bodyParser from 'koa-bodyparser';
+import conditional from 'koa-conditional-get';
 import cors from 'koa-cors';
+import etag from 'koa-etag';
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import { validate, ui } from 'swagger2-koa';
@@ -19,6 +21,8 @@ export default (schema, config, swaggerDoc, credentials, logger) => db => {
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
+  app.use(conditional());
+  app.use(etag());
   app.use(cors());
   app.use(bodyParser());
   app.use(validateContentType('application/json'));
