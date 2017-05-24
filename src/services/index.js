@@ -74,7 +74,7 @@ export const put = (db, logger) => async ctx => {
 export const destroy = (db, logger) => async ctx => {
   const { id } = ctx.params;
   const result = await db.delete(id);
-  result.fold(mapError(ctx, logger), setBody(ctx));
+  result.fold(mapError(ctx, logger), () => setStatus(204)(ctx));
   return ctx;
 };
 

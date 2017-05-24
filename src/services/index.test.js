@@ -314,16 +314,14 @@ describe('Services', () => {
       expect(throwSpy).toHaveBeenCalledWith(404);
     });
 
-    it('returns ctx with body set to result of delete when successful', async () => {
-      const deleteSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
+    it('returns ctx status code 204 and body as null when successful', async () => {
+      const deleteSpy = jest.fn(() => Either.Right({}));
       const db = { delete: deleteSpy };
-      const ctx = { params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
+      const ctx = { body: null, params: { id: 100 }, request: { body: { whatever: 'trevor' } } };
 
       const actual = await destroy(db, noop)(ctx);
-      expect(actual.body).toEqual({
-        id: 100,
-        whatever: 'trevor',
-      });
+      expect(actual.status).toBe(204);
+      expect(actual.body).toEqual(null);
     });
   });
 
