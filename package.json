@@ -12,7 +12,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "babel src -d lib --ignore \"**/*.test.js\"",
+    "build": "babel src -d lib  --ignore *.test*.js",
     "dev": "nodemon src/index.js",
     "lint": "eslint src",
     "prepublish": "yarn build",
