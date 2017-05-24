@@ -2,13 +2,17 @@
   "name": "cruddy-simple",
   "version": "0.0.1",
   "description": "Node CRUD API",
-  "repository": "git@github.com:photobox/cruddy-simple.git",
   "author": "Photobox",
   "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "license": "MIT",
   "scripts": {
     "build": "babel src -d lib --ignore \"**/*.test.js\"",
     "dev": "nodemon src/index.js",
     "lint": "eslint src",
+    "prepublish": "yarn build",
     "precommit": "lint-staged",
     "prettier": "prettier 'src/**/*.js' --write --single-quote=true --print-width=120 --trailing-comma=es5",
     "start": "node lib/index.js",

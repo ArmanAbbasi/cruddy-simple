@@ -1,6 +1,6 @@
 # cruddy-simple
 
-Generic CRUD Node application. Which takes configuration and provides CRUD on a database. AWS DynamoDB is supported out of the box but there is no reason why the database couldn't be relational (SQL), all that is required to support this is a wrapper around the database connection that implements the internal database interface [example](https://github.com/photobox/cruddy-simple/blob/master/src/persistence/inMemoryDb/index.js)
+Generic CRUD Node application. Which takes configuration and provides CRUD on a database. AWS DynamoDB is supported out of the box but there is no reason why the database couldn't be relational (SQL), all that is required to support this is a wrapper around the database connection that implements the internal database interface.
 
 ## Features
 
@@ -85,8 +85,8 @@ const serverConfig = {
 };
 
 AWS.config.update({
-  region: 'eu-west-1'
-  endpoint: 'https://dynamodb.eu-west-1.amazonaws.com',
+  region: 'aws-region'
+  endpoint: 'aws-endpoint',
 });
 
 const client = new AWS.DynamoDB.DocumentClient();
@@ -96,3 +96,7 @@ const db = dynamoDb(client, params, uniqueId);
 
 server(schema, serverConfig, doc, credentials, logger)(db);
 ```
+
+## License
+
+MIT
