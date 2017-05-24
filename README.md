@@ -23,7 +23,6 @@ Generic CRUD Node application. Which takes configuration and provides CRUD on a 
 ## Installation
 
 ```sh
-# pending private npm modules
 yarn add cruddy-simple
 ```
 
