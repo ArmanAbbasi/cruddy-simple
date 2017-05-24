@@ -4,48 +4,55 @@ import { NotFoundError } from '../../utils';
 let uid;
 let db;
 
-const create = blob => {
+const create = resource => {
   uid++;
-  const newFilm = { ...blob, id: uid };
+  const newResource = { ...resource, id: uid };
   db = {
     ...db,
-    [uid]: newFilm,
+    [uid]: newResource,
   };
-  return Either.Right(newFilm);
+  return Either.Right(newResource);
 };
 
-const read = () => Either.Right(Object.keys(db).map(key => db[key]));
+const read = () => {
+  const resources = Object.keys(db).map(key => db[key]);
+  return Either.Right(resources);
+};
 
 const readById = id => {
-  if (!db[id]) {
+  const resource = db[id];
+  if (!resource) {
     return Either.Left(new NotFoundError());
   }
-  return Either.Right({ ...db[id] });
+  return Either.Right(resource);
 };
 
-const update = (id, blob) => {
-  const existingFilm = readById(id);
+const update = (id, resource) => {
+  const existing = readById(id);
 
-  if (existingFilm.isLeft) {
-    return existingFilm;
+  if (existing.isLeft) {
+    return existing;
   }
-  const updatedData = { id, ...blob };
+
+  const updatedResource = { id, ...resource };
 
   db = {
     ...db,
-    [id]: updatedData,
+    [id]: updatedResource,
   };
 
-  return Either.Right(updatedData);
+  return Either.Right(updatedResource);
 };
 
 const destroy = id => {
-  const deletedItem = db[id];
-  if (deletedItem) {
-    delete db[id];
-    return Either.Right(deletedItem);
+  const resource = db[id];
+
+  if (!resource) {
+    return Either.Left(new NotFoundError());
   }
-  return Either.Left(new NotFoundError());
+
+  delete db[id];
+  return Either.Right();
 };
 
 export default () => {
