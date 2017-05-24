@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Node CRUD API",
   "author": "Photobox",
+  "contributors": [
+    "Matt Phillips <matt.phillips@photobox.com>"
+  ],
   "main": "lib/index.js",
   "files": [
     "lib"
