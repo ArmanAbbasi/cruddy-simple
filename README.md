@@ -1,6 +1,8 @@
 # cruddy-simple
 
-Generic CRUD Node application. Which takes configuration and provides CRUD on a database. AWS DynamoDB is supported out of the box but there is no reason why the database couldn't be relational (SQL), all that is required to support this is a wrapper around the database connection that implements the internal database interface.
+Generic CRUD Node application. Which takes configuration and provides CRUD operations on a database. AWS DynamoDB is
+supported out of the box but there is no reason why the database cannot be relational (SQL). All that is required to
+support this is a wrapper around the database connection that implements the internal database contract see below.
 
 ## Features
 
@@ -11,7 +13,8 @@ Generic CRUD Node application. Which takes configuration and provides CRUD on a 
    * `POST /`
    * `PUT /:id`
    * `DELETE /:id`
- - Performs database transactions with given database interface (`create`, `read`, `readById`, `update`, `delete`) at the correct routes
+ - Performs database transactions with given database wrapper (`create`, `read`, `readById`, `update`, `delete`) at
+ the correct routes
  - Supports caching with `eTag`
  - Validates content type to be `application/json`
  - Validates JSON against the resource JSON Schema
@@ -26,9 +29,15 @@ Generic CRUD Node application. Which takes configuration and provides CRUD on a 
 yarn add cruddy-simple
 ```
 
-## API
+## Available APIs
+
+```js
+import { dynamoDb, server, Either, NotFoundError } from 'cruddy-simple';
+```
 
 ### DynamoDb
+
+A function that takes a database client
 
 `dynamoDb(client, params, createId)`
 
@@ -59,6 +68,17 @@ yarn add cruddy-simple
    * readById: `Function`: A function to read a resource by an ID from the table, used by `GET /:id` requests
    * update: `Function`: A function to update a resource at an ID in the table, used by `PUT /:id` requests
    * delete: `Function`: A function to delete a resource in the table, used by `DELETE /:id` requests
+
+### Either
+
+[Data.Either](http://docs.folktalejs.org/en/latest/api/data/either/Either.html) is used for the internal Either data
+structure.
+
+### NotFoundError
+
+`NotFoundError(message)`
+
+ - **message**: `String`. An optional message to attach to the error. Default: `Not Found`
 
 ## Usage
 
@@ -94,6 +114,115 @@ const params = { TableName: 'users' };
 const db = dynamoDb(client, params, uniqueId);
 
 server(schema, serverConfig, doc, credentials, logger)(db);
+```
+
+## Extending
+
+### Database Wrapper
+
+The database wrapper passed into the server must conform to the following contract:
+
+``` js
+// flow used for description only
+interface Database {
+  create(Resource): Either<Error, Resource>,
+  read(): Either<Error, [Resource]>,
+  readById(ID): Either<Error, Resource>,
+  update(ID, Resource): Either<Error, Resource>,
+  delete(ID): Either<Error, Unit>
+}
+```
+
+#### Either
+
+The Either monad is used to represent the outcome of operations on the database.
+
+Encapsulating the success in:
+ - `Either.Right`
+
+ and the error in:
+ - `Either.Left`
+
+This encapsulates server errors or not found errors in a consistent manner resulting in the ability to `fold` over the
+data structure with an error function (left) and a success function (right).
+
+#### Error
+
+The routes of the application understands two types of errors:
+ - `Error` a native JavaScript error
+ - `NotFoundError` an extension of a JavaScript Error with the added context of representing not found when a resource
+ is not available in the database
+
+#### Example of an In-Memory Database
+
+``` js
+import { Either, NotFoundError } from 'cruddy-simple';
+
+let uid;
+let db;
+
+const create = resource => {
+  uid++;
+  const newResource = { ...resource, id: uid };
+  db = {
+    ...db,
+    [uid]: newResource,
+  };
+  return Either.Right(newResource);
+};
+
+const read = () => {
+  const resources = Object.keys(db).map(key => db[key]);
+  return Either.Right(resources);
+};
+
+const readById = id => {
+  const resource = db[id];
+  if (!resource) {
+    return Either.Left(new NotFoundError());
+  }
+  return Either.Right(resource);
+};
+
+const update = (id, resource) => {
+  const existing = readById(id);
+
+  if (existing.isLeft) { // is read by id an error
+    return existing;
+  }
+
+  const updatedResource = { id, ...resource };
+
+  db = {
+    ...db,
+    [id]: updatedResource,
+  };
+
+  return Either.Right(updatedResource);
+};
+
+const destroy = id => {
+  const resource = db[id];
+
+  if (!resource) {
+    return Either.Left(new NotFoundError());
+  }
+
+  delete db[id];
+  return Either.Right();
+};
+
+export const database = () => {
+  db = {};
+  uid = 0;
+  return {
+    create,
+    read,
+    readById,
+    update,
+    delete: destroy,
+  };
+};
 ```
 
 ## License
