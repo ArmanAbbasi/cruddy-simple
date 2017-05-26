@@ -153,7 +153,7 @@ describe('Services', () => {
     it('calls db create with context request body', () => {
       const createSpy = jest.fn(() => Either.Right({ id: 100, whatever: 'trevor' }));
       const db = { create: createSpy };
-      const ctx = { request: { body: { whatever: 'trevor' } } };
+      const ctx = { set: noop, request: { body: { whatever: 'trevor' } } };
       post(db, noop)(ctx);
       expect(createSpy).toHaveBeenCalledWith({ whatever: 'trevor' });
     });
@@ -161,7 +161,7 @@ describe('Services', () => {
     it('calls logger error with error message when database returns an error', async () => {
       const errorSpy = jest.fn();
 
-      const ctx = { request: { body: { whatever: 'trevor' } }, throw: noop };
+      const ctx = { set: noop, request: { body: { whatever: 'trevor' } }, throw: noop };
       const createSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { create: createSpy };
 
@@ -171,7 +171,7 @@ describe('Services', () => {
 
     it('calls ctx throw with 500 and error message when create returns an error', async () => {
       const throwSpy = jest.fn();
-      const ctx = { request: { body: { whatever: 'trevor' } }, throw: throwSpy };
+      const ctx = { set: noop, request: { body: { whatever: 'trevor' } }, throw: throwSpy };
       const createSpy = () => Either.Left(new Error('Error could not connect to database'));
       const db = { create: createSpy };
 
@@ -180,7 +180,7 @@ describe('Services', () => {
     });
 
     it('returns ctx with body set to result of create when create is successful', async () => {
-      const ctx = { request: { body: { whatever: 'trevor' } } };
+      const ctx = { set: noop, request: { body: { whatever: 'trevor' } } };
       const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
       const db = { create: createSpy };
 
@@ -192,7 +192,7 @@ describe('Services', () => {
     });
 
     it('returns ctx with status set to 201 when create is successful', async () => {
-      const ctx = { request: { body: { whatever: 'trevor' } } };
+      const ctx = { set: noop, request: { body: { whatever: 'trevor' } } };
       const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
       const db = { create: createSpy };
 
@@ -200,9 +200,19 @@ describe('Services', () => {
       expect(actual.status).toBe(201);
     });
 
+    it('calls ctx set with Location and to ctx.origin/ctx.path/id', async () => {
+      const setSpy = jest.fn();
+      const ctx = { path: 'hello', set: setSpy, request: { body: { whatever: 'trevor' } }, origin: 'www.example.com' };
+      const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
+      const db = { create: createSpy };
+
+      await post(db, noop)(ctx);
+      expect(setSpy).toHaveBeenCalledWith('Location', 'www.example.com/hello/100');
+    });
+
     it('calls throw when id is present in request body', async () => {
       const throwSpy = jest.fn();
-      const ctx = { request: { body: { id: 100, whatever: 'trevor' } }, throw: throwSpy };
+      const ctx = { set: noop, request: { body: { id: 100, whatever: 'trevor' } }, throw: throwSpy };
 
       const createSpy = () => Either.Right({ id: 100, whatever: 'trevor' });
       const db = { create: createSpy };

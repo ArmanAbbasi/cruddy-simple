@@ -19,6 +19,11 @@ const setStatus = statusCode => ctx => {
   return ctx;
 };
 
+const setLocation = id => ctx => {
+  ctx.set('Location', `${ctx.origin}/${ctx.path}/${id}`);
+  return ctx;
+};
+
 const notFound = ctx => ctx.throw(404);
 
 const badRequest = (ctx, message) => ctx.throw(400, message);
@@ -56,7 +61,9 @@ export const post = (db, logger) => async ctx => {
   if (ctx.request.body.id) return badRequest(ctx, ID_IN_REQUEST_ERROR_MESSAGE);
 
   const result = await db.create(ctx.request.body);
-  result.fold(mapError(ctx, logger), compose(setStatus(201), setBody(ctx)));
+  result.fold(mapError(ctx, logger), data => {
+    return compose(setLocation(data.id), setStatus(201), setBody(ctx))(data);
+  });
   return ctx;
 };
 
