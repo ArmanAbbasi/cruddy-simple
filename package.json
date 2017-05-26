@@ -1,5 +1,5 @@
 {
-  "name": "cruddy-simple",
+  "name": "@photobox/cruddy-simple",
   "version": "0.0.3",
   "description": "Node CRUD API",
   "author": "Photobox",
