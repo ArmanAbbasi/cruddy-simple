@@ -11,6 +11,7 @@ import {
   health,
   post,
   put,
+  schemaMiddleware,
   validateBodyWithSchema,
   validateContentType,
 } from './';
@@ -322,6 +323,15 @@ describe('Services', () => {
       const actual = await destroy(db, noop)(ctx);
       expect(actual.status).toBe(204);
       expect(actual.body).toEqual(null);
+    });
+  });
+
+  describe('.schemaMiddleware', () => {
+    it('sets ctx body with given schema', () => {
+      const ctx = {};
+      const schema = { hello: 'world' };
+      schemaMiddleware(schema)(ctx);
+      expect(ctx.body).toEqual(schema);
     });
   });
 

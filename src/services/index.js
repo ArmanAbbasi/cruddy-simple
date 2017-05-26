@@ -78,6 +78,10 @@ export const destroy = (db, logger) => async ctx => {
   return ctx;
 };
 
+export const schemaMiddleware = schema => async ctx => {
+  return (ctx.body = schema);
+};
+
 export const validateContentType = type => async (ctx, next) => {
   const valid = ctx.is(type);
   if (valid === false) return ctx.throw(400, `Error content type must be ${type}`);

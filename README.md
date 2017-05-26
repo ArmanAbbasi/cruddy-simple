@@ -10,6 +10,7 @@ support this is a wrapper around the database connection that implements the int
    * `GET /`
    * `GET /:id`
    * `GET /healthz`
+   * `GET /schema`
    * `POST /`
    * `PUT /:id`
    * `DELETE /:id`

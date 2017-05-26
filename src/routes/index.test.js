@@ -92,4 +92,19 @@ describe('Routes', () => {
       expect(getSpy).toHaveBeenCalledWith('/healthz', expect.any(Function));
     });
   });
+
+  describe('GET /schema', () => {
+    it('calls router get with /schema and a function', () => {
+      const getSpy = jest.fn();
+      const router = {
+        get: getSpy,
+        post: noop,
+        put: noop,
+        delete: noop,
+      };
+      const db = {};
+      routes(router, db);
+      expect(getSpy).toHaveBeenCalledWith('/schema', expect.any(Function));
+    });
+  });
 });
