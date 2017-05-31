@@ -29,6 +29,7 @@ export default (schema, config, swaggerDoc, credentials, logger) => db => {
   app.use(validateBodyWithSchema(validator));
   app.use(authUnsafeMethods(auth(credentials)));
   app.use(router.routes());
+  app.use(router.allowedMethods());
   app.use(validate(swaggerDoc));
   app.use(ui(swaggerDoc, '/docs'));
 
