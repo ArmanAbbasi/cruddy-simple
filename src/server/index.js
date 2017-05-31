@@ -32,5 +32,5 @@ export default (schema, config, swaggerDoc, credentials, logger) => db => {
   app.use(validate(swaggerDoc));
   app.use(ui(swaggerDoc, '/docs'));
 
-  return app.listen(port, () => logger.info(`INFO: Server running at ${host}:${port}`));
+  return app.listen(port, () => logger.info(`INFO: Server running at ${host}`));
 };
