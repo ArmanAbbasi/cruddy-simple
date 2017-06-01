@@ -25,6 +25,7 @@ internal database contract see below.
  - Secures unsafe methods (`PUT`, `POST`, `DELETE`) with basic auth
  - Logging
  - [Custom Routes](#custom-routes)
+ - Custom Koa Middleware
 
 ## Installation
 
@@ -52,7 +53,7 @@ A function that takes a database client
 
 ### Server
 
-`server(schema, config, swaggerDoc, credentials, logger, customRoutes)(db)`
+`server(schema, config, swaggerDoc, credentials, logger, customRoutes, customMiddleware)(db)`
 
 **schema**: `Object`. JSON Schema object representation of the resource being exposed
 
@@ -88,6 +89,8 @@ A function that takes a database client
 | method | <code>String</code> | Method to add to the router i.e. `get` |
 | path | <code>String</code> | Path of route at given method i.e. `/name/:name` |
 | middleware | <code>Array</code> | An array of koa middleware functions |
+
+**customMiddleware**: `Array`. An array of Koa middleware
 
 **db** `Object`
 
