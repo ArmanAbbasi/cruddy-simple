@@ -170,6 +170,9 @@ interface Database {
 
 #### Either
 
+<details>
+
+<summary>Usage</summary>
 The Either monad is used to represent the outcome of operations on the database.
 
 Encapsulating the success in:
@@ -181,84 +184,22 @@ Encapsulating the success in:
 This encapsulates server errors or not found errors in a consistent manner resulting in the ability to `fold` over the
 data structure with an error function (left) and a success function (right).
 
+</details>
+
 #### Error
+
+<details>
+
+<summary>Usage</summary>
 
 The routes of the application understands two types of errors:
  - `Error` a native JavaScript error
  - `NotFoundError` an extension of a JavaScript Error with the added context of representing not found when a resource
  is not available in the database
 
-#### Example of an In-Memory Database
+</details>
 
-``` js
-import { Either, NotFoundError } from 'cruddy-simple';
-
-let uid;
-let db;
-
-const create = resource => {
-  uid++;
-  const newResource = { ...resource, id: uid };
-  db = {
-    ...db,
-    [uid]: newResource,
-  };
-  return Either.Right(newResource);
-};
-
-const read = () => {
-  const resources = Object.keys(db).map(key => db[key]);
-  return Either.Right(resources);
-};
-
-const readById = id => {
-  const resource = db[id];
-  if (!resource) {
-    return Either.Left(new NotFoundError());
-  }
-  return Either.Right(resource);
-};
-
-const update = (id, resource) => {
-  const existing = readById(id);
-
-  if (existing.isLeft) { // is read by id an error
-    return existing;
-  }
-
-  const updatedResource = { id, ...resource };
-
-  db = {
-    ...db,
-    [id]: updatedResource,
-  };
-
-  return Either.Right(updatedResource);
-};
-
-const destroy = id => {
-  const resource = db[id];
-
-  if (!resource) {
-    return Either.Left(new NotFoundError());
-  }
-
-  delete db[id];
-  return Either.Right();
-};
-
-export const database = () => {
-  db = {};
-  uid = 0;
-  return {
-    create,
-    read,
-    readById,
-    update,
-    delete: destroy,
-  };
-};
-```
+#### [Example In-Memory Database](https://www.github.com/photobox/cruddy-simple/tree/master/src/persistence/inMemoryDb/index.js)
 
 ### Custom Routes
 

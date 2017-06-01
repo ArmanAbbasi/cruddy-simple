@@ -31,6 +31,7 @@ const update = (id, resource) => {
   const existing = readById(id);
 
   if (existing.isLeft) {
+    // is read by id an error
     return existing;
   }
 
