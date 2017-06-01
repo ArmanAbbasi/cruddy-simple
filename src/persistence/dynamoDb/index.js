@@ -33,7 +33,15 @@ const upsert = async (client, params, item) => {
   }
 };
 
-const create = (client, params, createId) => async item => upsert(client, params, { ...item, id: createId() });
+const create = (client, params, createId, selfLink) => async item => {
+  const id = createId();
+
+  if (selfLink) {
+    return upsert(client, params, selfLink(id, { ...item, id }));
+  }
+
+  return upsert(client, params, { ...item, id });
+};
 
 const update = (client, params) => async (id, item) => {
   const result = await readById(client, params)(id);
@@ -56,8 +64,8 @@ const destroy = (client, params) => async id => {
   }
 };
 
-export default (client, params, createId) => ({
-  create: create(client, params, createId),
+export default (client, params, createId, selfLink) => ({
+  create: create(client, params, createId, selfLink),
   read: read(client, params),
   readById: readById(client, params),
   update: update(client, params),

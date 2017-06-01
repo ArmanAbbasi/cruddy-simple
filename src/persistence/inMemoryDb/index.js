@@ -4,13 +4,26 @@ import { NotFoundError } from '../../utils';
 let uid;
 let db;
 
-const create = resource => {
+const create = hateosLink => resource => {
   uid++;
-  const newResource = { ...resource, id: uid };
+
+  const id = uid;
+  const newResource = { ...resource, id };
+
+  if (hateosLink) {
+    const updatedResource = hateosLink(id, newResource);
+    db = {
+      ...db,
+      [uid]: updatedResource,
+    };
+    return Either.Right(updatedResource);
+  }
+
   db = {
     ...db,
     [uid]: newResource,
   };
+
   return Either.Right(newResource);
 };
 
@@ -55,11 +68,11 @@ const destroy = id => {
   return Either.Right();
 };
 
-export default () => {
+export default hateosLink => {
   db = {};
   uid = 0;
   return {
-    create,
+    create: create(hateosLink),
     read,
     readById,
     update,
