@@ -44,37 +44,60 @@ A function that takes a database client
 
 `dynamoDb(client, params, createId)`
 
- - **client**: `Object`. The configured AWS Dynamo Client
- - **params**: `Object`. An object that contains any values needed by the AWS SDK
- - **createId**: `Function`. A function that is used to generate unique IDs for new resources
+| Param | Type | Description |
+| --- | --- | --- |
+| client | <code>Object</code> | The configured AWS Dynamo Client |
+| params | <code>Object</code> | An object that contains any values needed by the AWS SDK |
+| createId | <code>Function</code> | A function that is used to generate unique IDs for new resources |
 
 ### Server
 
 `server(schema, config, swaggerDoc, credentials, logger, customRoutes)(db)`
 
- - **schema**: `Object`. JSON Schema object representation of the resource being exposed
- - **config**: `Object`.
-   * host: `String`. The hostname of the server
-   * port: `Number`. The port the server is to be ran on
-   * resource: `String`. The name of the resource endpoint i.e. `users`
- - **swaggerDoc**: `Object`. An object containing the swagger document to be exposed at `/docs`
- - **credentials**: `Object`.
-   * name: `String`. The basic auth name
-   * pass: `String`. The basic auth password
- - **logger**: `Object`.
-   * info: `Function`. Logging function for information
-   * error: `Function`. Logging function of errors i.e. `Internal Server Error`
-   * fatal: `Function`. Logging of fatal errors that cause the application to crash
- - **customRoutes**: `Array`. An optional array of route objects:
-   * method: `String`. Method to add to the router i.e. `get`
-   * path: `String`. Path of route at given method i.e. `/name/:name`
-   * middleware: `Array`. An array of koa middleware functions
- - **db**: `Object`.
-   * create: `Function`: A function to create a resource in the table, used by `POST /` requests
-   * read: `Function`: A function to read all resources in the table, used by `GET /` requests
-   * readById: `Function`: A function to read a resource by an ID from the table, used by `GET /:id` requests
-   * update: `Function`: A function to update a resource at an ID in the table, used by `PUT /:id` requests
-   * delete: `Function`: A function to delete a resource in the table, used by `DELETE /:id` requests
+**schema**: `Object`. JSON Schema object representation of the resource being exposed
+
+**config**: `Object`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| host | <code>String</code> | The hostname of the server |
+| port | <code>Number</code> | The port the server is to be ran on |
+| resource | <code>String</code> | The name of the resource endpoint i.e. `users` |
+
+**swaggerDoc**: `Object`. An object containing the swagger document to be exposed at `/docs`
+
+**credentials**: `Object`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>String</code> | The basic auth name |
+| pass | <code>String</code> | The basic auth password |
+
+**logger**: `Object`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| info | <code>Function</code> | Logging function for information |
+| error | <code>Function</code> | Logging function of errors i.e. `Internal Server Error` |
+| fatal | <code>Function</code> | Logging of fatal errors that cause the application to crash |
+
+**customRoutes**: `Array`. _An optional array of route objects:_
+
+| Param | Type | Description |
+| --- | --- | --- |
+| method | <code>String</code> | Method to add to the router i.e. `get` |
+| path | <code>String</code> | Path of route at given method i.e. `/name/:name` |
+| middleware | <code>Array</code> | An array of koa middleware functions |
+
+**db** `Object`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| create | <code>Function</code> | A function to create a resource in the table, used by `POST /` requests |
+| read | <code>Function</code> | A function to read all resources in the table, used by `GET /` requests |
+| readById | <code>Function</code> | A function to read a resource by an ID from the table, used by `GET /:id` requests |
+| update | <code>Function</code> | A function to update a resource at an ID in the table, used by `PUT /:id` requests |
+| delete | <code>Function</code> | A function to delete a resource in the table, used by `DELETE /:id` requests |
 
 ### Either
 
@@ -85,7 +108,9 @@ structure.
 
 `NotFoundError(message)`
 
- - **message**: `String`. An optional message to attach to the error. Default: `Not Found`
+| Param | Type | Description |
+| --- | --- | --- |
+| message | <code>String</code> | An optional message to attach to the error. Default: `Not Found` |
 
 ## Usage
 
