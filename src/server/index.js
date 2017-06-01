@@ -11,13 +11,13 @@ import { validate, ui } from 'swagger2-koa';
 import routes from '../routes';
 import { authUnsafeMethods, validateBodyWithSchema, validateContentType } from '../services';
 
-export default (schema, config, swaggerDoc, credentials, logger) => db => {
+export default (schema, config, swaggerDoc, credentials, logger, customRoutes = []) => db => {
   const { host, port, resource } = config;
 
   const app = new Koa();
 
   const koaRouter = new KoaRouter({ prefix: `/${resource}` });
-  const router = routes(koaRouter, db, logger, schema);
+  const router = routes(koaRouter, db, logger, schema, customRoutes);
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
