@@ -1,8 +1,9 @@
 # cruddy-simple
 
-Generic CRUD Node application. Which takes configuration and provides CRUD operations on a database. AWS DynamoDB is
-supported out of the box but there is no reason why the database cannot be relational (SQL). All that is required to
-support this is a wrapper around the database connection that implements the internal database contract see below.
+Generic CRUD Node application implemented with [Koa](http://koajs.com/). Which takes configuration and provides CRUD
+operations on a database. AWS DynamoDB is supported out of the box but there is no reason why the database cannot be
+relational (SQL). All that is required to support this is a wrapper around the database connection that implements the
+internal database contract see below.
 
 ## Features
 
@@ -14,8 +15,8 @@ support this is a wrapper around the database connection that implements the int
    * `POST /`
    * `PUT /:id`
    * `DELETE /:id`
- - Performs database transactions with given database wrapper (`create`, `read`, `readById`, `update`, `delete`) at
- the correct routes
+ - Performs database transactions with given [database wrapper](#database-wrapper) (`create`, `read`, `readById`,
+ `update`, `delete`) at the correct routes
  - Supports caching with `eTag`
  - Validates content type to be `application/json`
  - Validates JSON against the resource JSON Schema
@@ -23,6 +24,7 @@ support this is a wrapper around the database connection that implements the int
  - Mounts Swagger docs at `/docs`
  - Secures unsafe methods (`PUT`, `POST`, `DELETE`) with basic auth
  - Logging
+ - [Custom Routes](#custom-routes)
 
 ## Installation
 
@@ -48,7 +50,7 @@ A function that takes a database client
 
 ### Server
 
-`server(schema, config, swaggerDoc, credentials, logger)(db)`
+`server(schema, config, swaggerDoc, credentials, logger, customRoutes)(db)`
 
  - **schema**: `Object`. JSON Schema object representation of the resource being exposed
  - **config**: `Object`.
@@ -63,6 +65,10 @@ A function that takes a database client
    * info: `Function`. Logging function for information
    * error: `Function`. Logging function of errors i.e. `Internal Server Error`
    * fatal: `Function`. Logging of fatal errors that cause the application to crash
+ - **customRoutes**: `Array`. An optional array of route objects:
+   * method: `String`. Method to add to the router i.e. `get`
+   * path: `String`. Path of route at given method i.e. `/name/:name`
+   * middleware: `Array`. An array of koa middleware functions
  - **db**: `Object`.
    * create: `Function`: A function to create a resource in the table, used by `POST /` requests
    * read: `Function`: A function to read all resources in the table, used by `GET /` requests
@@ -225,6 +231,60 @@ export const database = () => {
   };
 };
 ```
+
+### Custom Routes
+
+Each custom route will need to know how to resolve the request itself with an array of standard Koa middleware.
+If you needed to do anything with a database then you should pass this into the middleware/s before
+supplying the custom routes to the server.
+
+Example custom get route:
+
+```js
+const getByNameMiddleware = db => async ctx => {
+  const { name } = ctx.params;
+  const result = await db.read();
+
+  return result.fold(
+    error => {
+      return ctx.throw(500, error.message);
+    },
+    data => {
+      return ctx.body = data.filter(item => item.name === name);
+    }
+  );
+};
+
+const logMiddleware = logger => async (ctx, next) => {
+  logger.info(ctx.method);
+  return next();
+};
+
+const customRoutes = [
+  {
+    method: 'get',
+    path: '/name/:name',
+    // with single middleware
+    middleware: [getByNameMiddleware(someDbWrapperOfYourChoice)]
+  },
+  {
+    method: 'get',
+    path: '/nameWithLog/:name',
+    // with multiple middleware
+    middleware: [
+      logMiddleware(someLoggerOfYourChoice),
+      getByNameMiddleware(someDbWrapperOfYourChoice)
+    ]
+  }
+];
+
+server(schema, config, swaggerDoc, credentials, logger, customRoutes)(db);
+```
+
+#### WARNING ️⚠️
+
+Any custom routes that match those supported by `cruddy-simple` ([here](#features)) will overwrite the default
+behavior.
 
 ## License
 
