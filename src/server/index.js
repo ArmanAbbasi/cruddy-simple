@@ -3,7 +3,7 @@ import auth from 'koa-basic-auth';
 import bodyParser from 'koa-bodyparser';
 import conditional from 'koa-conditional-get';
 import cors from 'koa-cors';
-import etag from 'koa-etag';
+import eTag from 'koa-etag';
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import { validate, ui } from 'swagger2-koa';
@@ -16,13 +16,15 @@ export default config => {
     credentials,
     db,
     host,
-    logger,
+    logger = console, // add a fatal wrapper
     middleware = [],
     port,
     resource,
     routes: customRoutes = [],
     schema,
     swaggerDoc,
+    eTag = true,
+    cors = true,
   } = config;
 
   const app = new Koa();
@@ -30,22 +32,36 @@ export default config => {
   const koaRouter = new KoaRouter({ prefix: `/${resource}` });
   const router = routes(koaRouter, db, logger, schema, customRoutes);
 
-  const validator = new Ajv({ allErrors: true }).compile(schema);
+  if (eTag) {
+    app.use(conditional());
+    app.use(eTag());
+  }
 
-  app.use(conditional());
-  app.use(etag());
-  app.use(cors());
+  if (cors) {
+    app.use(cors());
+  }
+
   app.use(bodyParser());
   app.use(validateContentType('application/json'));
-  app.use(validateBodyWithSchema(validator));
-  app.use(authUnsafeMethods(auth(credentials)));
+
+  if (schema) {
+    const validator = new Ajv({ allErrors: true }).compile(schema);
+    app.use(validateBodyWithSchema(validator));
+  }
+
+  if (credentials) {
+    app.use(authUnsafeMethods(auth(credentials)));
+  }
 
   middleware.forEach(m => app.use(m));
 
   app.use(router.routes());
   app.use(router.allowedMethods());
-  app.use(validate(swaggerDoc));
-  app.use(ui(swaggerDoc, '/docs'));
+
+  if (swaggerDoc) {
+    app.use(validate(swaggerDoc));
+    app.use(ui(swaggerDoc, '/docs'));
+  }
 
   return app.listen(port, () => logger.info(`INFO: Server running at ${host}`));
 };

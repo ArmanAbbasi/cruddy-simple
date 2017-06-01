@@ -26,7 +26,9 @@ export default (router, db, logger, schema, customRoutes) => {
 
   router.get('/healthz', health);
 
-  router.get('/schema', schemaMiddleware(schema));
+  if (schema) {
+    router.get('/schema', schemaMiddleware(schema));
+  }
 
   router.get('/', getAll(db, logger));
 
