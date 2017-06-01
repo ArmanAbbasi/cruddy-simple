@@ -43,7 +43,7 @@ import { dynamoDb, server, Either, NotFoundError } from 'cruddy-simple';
 
 A function that takes a database client
 
-`dynamoDb(client, params, createId)`
+**`dynamoDb(client, params, createId)`**
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -53,28 +53,30 @@ A function that takes a database client
 
 ### Server
 
-`server(schema, config, swaggerDoc, credentials, logger, customRoutes, customMiddleware)(db)`
+**`server(config)`**
 
-**schema**: `Object`. JSON Schema object representation of the resource being exposed
+Config options:
 
-**config**: `Object`
+- **host**: `String`. The hostname of the server
 
-| Param | Type | Description |
-| --- | --- | --- |
-| host | <code>String</code> | The hostname of the server |
-| port | <code>Number</code> | The port the server is to be ran on |
-| resource | <code>String</code> | The name of the resource endpoint i.e. `users` |
+- **port**: `Number`. The port the server is to be ran on
 
-**swaggerDoc**: `Object`. An object containing the swagger document to be exposed at `/docs`
+- **resource**: `String`. The name of the resource endpoint i.e. `users`
 
-**credentials**: `Object`
+- **schema**: `Object`. JSON Schema object representation of the resource being exposed
+
+- **middleware**: `Array`. _An optional array of Koa middleware_
+
+- **swaggerDoc**: `Object`. An object containing the swagger document to be exposed at `/docs`
+
+- **credentials**: `Object`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | name | <code>String</code> | The basic auth name |
 | pass | <code>String</code> | The basic auth password |
 
-**logger**: `Object`
+- **logger**: `Object`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -82,7 +84,7 @@ A function that takes a database client
 | error | <code>Function</code> | Logging function of errors i.e. `Internal Server Error` |
 | fatal | <code>Function</code> | Logging of fatal errors that cause the application to crash |
 
-**customRoutes**: `Array`. _An optional array of route objects:_
+- **routes**: `Array`. _An optional array of route objects:_
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -90,9 +92,7 @@ A function that takes a database client
 | path | <code>String</code> | Path of route at given method i.e. `/name/:name` |
 | middleware | <code>Array</code> | An array of koa middleware functions |
 
-**customMiddleware**: `Array`. An array of Koa middleware
-
-**db** `Object`
+- **db** `Object`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -132,12 +132,6 @@ const credentials = {
   pass: 'blogs'
 };
 
-const serverConfig = {
-  host: 'localhost',
-  port: 4000,
-  resource: 'users',
-};
-
 AWS.config.update({
   region: 'aws-region'
   endpoint: 'aws-endpoint',
@@ -148,7 +142,18 @@ const params = { TableName: 'users' };
 
 const db = dynamoDb(client, params, uniqueId);
 
-server(schema, serverConfig, doc, credentials, logger)(db);
+const config = {
+  host: 'localhost',
+  port: 4000,
+  resource: 'users',
+  schema
+  swaggerDoc,
+  credentials,
+  logger,
+  db
+};
+
+server(config);
 ```
 
 ## Extending
@@ -229,7 +234,7 @@ const logMiddleware = logger => async (ctx, next) => {
   return next();
 };
 
-const customRoutes = [
+const routes = [
   {
     method: 'get',
     path: '/name/:name',
@@ -247,7 +252,19 @@ const customRoutes = [
   }
 ];
 
-server(schema, config, swaggerDoc, credentials, logger, customRoutes)(db);
+const config = {
+  credentials,
+  db,
+  host,
+  logger,
+  port,
+  resource,
+  routes,
+  schema,
+  swaggerDoc
+};
+
+server(config);
 ```
 
 #### WARNING ️⚠️

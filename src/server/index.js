@@ -11,8 +11,19 @@ import { validate, ui } from 'swagger2-koa';
 import routes from '../routes';
 import { authUnsafeMethods, validateBodyWithSchema, validateContentType } from '../services';
 
-export default (schema, config, swaggerDoc, credentials, logger, customRoutes = [], customMiddleware = []) => db => {
-  const { host, port, resource } = config;
+export default config => {
+  const {
+    credentials,
+    db,
+    host,
+    logger,
+    middleware = [],
+    port,
+    resource,
+    routes: customRoutes = [],
+    schema,
+    swaggerDoc,
+  } = config;
 
   const app = new Koa();
 
@@ -29,9 +40,7 @@ export default (schema, config, swaggerDoc, credentials, logger, customRoutes = 
   app.use(validateBodyWithSchema(validator));
   app.use(authUnsafeMethods(auth(credentials)));
 
-  customMiddleware.forEach(middleware => {
-    app.use(middleware);
-  });
+  middleware.forEach(m => app.use(m));
 
   app.use(router.routes());
   app.use(router.allowedMethods());
