@@ -27,7 +27,7 @@ support this is a wrapper around the database connection that implements the int
 ## Installation
 
 ```sh
-yarn add cruddy-simple
+yarn add @photobox/cruddy-simple
 ```
 
 ## Available APIs
