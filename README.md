@@ -30,7 +30,7 @@ internal database contract see below.
 ## Installation
 
 ```sh
-yarn add cruddy-simple
+yarn add @photobox/cruddy-simple
 ```
 
 ## Available APIs
