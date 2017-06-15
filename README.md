@@ -36,7 +36,7 @@ yarn add @photobox/cruddy-simple
 ## Available APIs
 
 ```js
-import { dynamoDb, server, Either, NotFoundError } from 'cruddy-simple';
+import { dynamoDb, server, Either, NotFoundError } from '@photobox/cruddy-simple';
 ```
 
 ### DynamoDb
@@ -119,7 +119,7 @@ structure.
 
 ```js
 import AWS from 'aws-sdk';
-import { dynamoDb, server } from 'cruddy-simple';
+import { dynamoDb, server } from '@photobox/cruddy-simple';
 
 import schema from 'path/to/schema/user.json';
 import swaggerDoc from 'path/to/swagger.json';
