@@ -22,6 +22,8 @@
     "test": "jest --testRegex='\\.test\\.js$'",
     "test:integration": "jest --testRegex='\\.test\\.int\\.js$'",
     "test:coverage": "yarn test -- --coverage",
+    "test:ci:coverage": "yarn test -- --coverage --runInBand",
+    "test:report": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "test:watch": "yarn test -- --watch"
   },
   "lint-staged": {
@@ -60,6 +62,7 @@
   "dependencies": {
     "ajv": "^5.1.1",
     "aws-sdk": "^2.50.0",
+    "coveralls": "^2.13.1",
     "data.either": "^1.5.0",
     "koa": "^2.2.0",
     "koa-basic-auth": "^2.0.0",

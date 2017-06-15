@@ -1,5 +1,8 @@
 # cruddy-simple
 
+[![CircleCI](https://circleci.com/gh/photobox/cruddy-simple.svg?style=svg)](https://circleci.com/gh/photobox/cruddy-simple)
+[![Coverage Status](https://coveralls.io/repos/github/photobox/cruddy-simple/badge.svg?branch=master)](https://coveralls.io/github/photobox/cruddy-simple?branch=master)
+
 Generic CRUD Node application implemented with [Koa](http://koajs.com/). Which takes configuration and provides CRUD
 operations on a database. AWS DynamoDB is supported out of the box but there is no reason why the database cannot be
 relational (SQL). All that is required to support this is a wrapper around the database connection that implements the
