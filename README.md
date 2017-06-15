@@ -1,5 +1,6 @@
 # cruddy-simple
 
+[![npm version](https://badge.fury.io/js/%40photobox%2Fcruddy-simple.svg)](https://badge.fury.io/js/%40photobox%2Fcruddy-simple)
 [![CircleCI](https://circleci.com/gh/photobox/cruddy-simple.svg?style=svg)](https://circleci.com/gh/photobox/cruddy-simple)
 [![Coverage Status](https://coveralls.io/repos/github/photobox/cruddy-simple/badge.svg?branch=master)](https://coveralls.io/github/photobox/cruddy-simple?branch=master)
 
