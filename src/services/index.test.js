@@ -395,6 +395,13 @@ describe('Services', () => {
         validateBodyWithSchema(validator)(ctx, noop);
         expect(validator).not.toHaveBeenCalled();
       });
+
+      each([['PUT'], ['POST']]).it('and the request method is %s then does call validator', method => {
+        const validator = jest.fn();
+        const ctx = { method, request: { body: {} } };
+        validateBodyWithSchema(validator)(ctx, noop);
+        expect(validator).toHaveBeenCalled();
+      });
     });
 
     it('calls validator with request body when body is present', () => {
