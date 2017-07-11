@@ -381,52 +381,66 @@ describe('Services', () => {
 
   describe('.validateBodyWithSchema', () => {
     const noop = () => {};
-    describe('when the request body is empty', () => {
-      it('calls next', () => {
-        const next = jest.fn();
-        const ctx = { request: { body: {} } };
-        validateBodyWithSchema(noop)(ctx, next);
-        expect(next).toHaveBeenCalled();
+
+    ['GET', 'DELETE', 'HEAD', 'OPTIONS', 'random'].forEach(method => {
+      describe(`when the request method is: ${method}`, () => {
+        it('calls next', () => {
+          const next = jest.fn();
+          const ctx = { request: { body: {}, method } };
+          validateBodyWithSchema(noop)(ctx, next);
+          expect(next).toHaveBeenCalled();
+        });
+
+        it('does not call validator', () => {
+          const validator = jest.fn();
+          const ctx = { request: { body: {}, method } };
+          validateBodyWithSchema(validator)(ctx, noop);
+          expect(validator).not.toHaveBeenCalled();
+        });
       });
+    });
 
-      it('does not call validator', () => {
-        const validator = jest.fn();
-        const ctx = { request: { body: {} } };
-        validateBodyWithSchema(validator)(ctx, noop);
-        expect(validator).not.toHaveBeenCalled();
+    ['post', 'put', 'patch', 'POST', 'PUT', 'PATCH'].forEach(method => {
+      describe(`when the request method is: ${method}`, () => {
+        it('calls validator with request body when body is empty', () => {
+          const validator = jest.fn();
+          const ctx = { request: { body: {}, method }, throw: noop };
+          validateBodyWithSchema(validator)(ctx, noop);
+          expect(validator).toHaveBeenCalledWith({});
+        });
+
+        it('calls validator with request body when body is present', () => {
+          const validator = jest.fn();
+          const ctx = { request: { body: { whatever: 'trevor' }, method }, throw: noop };
+          validateBodyWithSchema(validator)(ctx, noop);
+          expect(validator).toHaveBeenCalledWith({ whatever: 'trevor' });
+        });
+
+        it('calls ctx throw with 400 and validator errors when validator returns false', () => {
+          const validator = () => false;
+          validator.errors = [1, 2, 3];
+          const throwSpy = jest.fn();
+          const ctx = { request: { body: { whatever: 'trevor' }, method }, throw: throwSpy };
+          validateBodyWithSchema(validator)(ctx, noop);
+          expect(throwSpy).toHaveBeenCalledWith(400, JSON.stringify([1, 2, 3], null, 2));
+        });
+
+        it('does not call ctx throw when validator returns true', () => {
+          const validator = () => true;
+          const throwSpy = jest.fn();
+          const ctx = { request: { body: { whatever: 'trevor' }, method }, throw: throwSpy };
+          validateBodyWithSchema(validator)(ctx, noop);
+          expect(throwSpy).not.toHaveBeenCalled();
+        });
+
+        it('calls next request has a body and when validator returns true', () => {
+          const validator = () => true;
+          const nextSpy = jest.fn();
+          const ctx = { request: { body: { whatever: 'trevor' }, method }, throw: noop };
+          validateBodyWithSchema(validator)(ctx, nextSpy);
+          expect(nextSpy).toHaveBeenCalled();
+        });
       });
-    });
-
-    it('calls validator with request body when body is present', () => {
-      const validator = jest.fn();
-      const ctx = { request: { body: { whatever: 'trevor' } }, throw: noop };
-      validateBodyWithSchema(validator)(ctx, noop);
-      expect(validator).toHaveBeenCalledWith({ whatever: 'trevor' });
-    });
-
-    it('calls ctx throw with 400 and validator errors when validator returns false', () => {
-      const validator = () => false;
-      validator.errors = [1, 2, 3];
-      const throwSpy = jest.fn();
-      const ctx = { request: { body: { whatever: 'trevor' } }, throw: throwSpy };
-      validateBodyWithSchema(validator)(ctx, noop);
-      expect(throwSpy).toHaveBeenCalledWith(400, JSON.stringify([1, 2, 3], null, 2));
-    });
-
-    it('does not call ctx throw when validator returns true', () => {
-      const validator = () => true;
-      const throwSpy = jest.fn();
-      const ctx = { request: { body: { whatever: 'trevor' } }, throw: throwSpy };
-      validateBodyWithSchema(validator)(ctx, noop);
-      expect(throwSpy).not.toHaveBeenCalled();
-    });
-
-    it('calls next request has a body and when validator returns true', () => {
-      const validator = () => true;
-      const nextSpy = jest.fn();
-      const ctx = { request: { body: { whatever: 'trevor' } }, throw: noop };
-      validateBodyWithSchema(validator)(ctx, nextSpy);
-      expect(nextSpy).toHaveBeenCalled();
     });
   });
 });
