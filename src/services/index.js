@@ -1,4 +1,4 @@
-import { compose, isEmpty } from 'ramda';
+import { compose } from 'ramda';
 
 import { NotFoundError } from '../utils';
 
@@ -97,8 +97,8 @@ export const validateContentType = type => async (ctx, next) => {
 };
 
 export const validateBodyWithSchema = validator => async (ctx, next) => {
-  if (!isEmpty(ctx.request.body)) {
-    var valid = validator(ctx.request.body);
+  if (['POST', 'PUT', 'PATCH'].includes(ctx.request.method.toUpperCase())) {
+    const valid = validator(ctx.request.body);
     if (!valid) {
       return ctx.throw(400, JSON.stringify(validator.errors, null, 2));
     }
