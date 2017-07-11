@@ -1,5 +1,3 @@
-#### Jira Ticket [PROD-XXX](http://jira.photobox.com/browse/PROD-XXX)
-
 ### PR Tasks
 
 - [ ] ...
@@ -10,4 +8,3 @@
 - [ ] Updated Documentation
 - [ ] No Linting Errors/ Warnings
 - [ ] Passing Build
-- [ ] Feature Flagged
