@@ -71,6 +71,8 @@ Config options:
 
 - **middleware**: `Array`. _An optional array of Koa middleware_
 
+- **putCanCreate**: `Boolean`. Flag indicating that PUT can create data if it does not exist.  Default is false.
+
 - **swaggerDoc**: `Object`. An object containing the swagger document to be exposed at `/docs`
 
 - **credentials**: `Object`
