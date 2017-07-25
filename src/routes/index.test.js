@@ -50,7 +50,7 @@ describe('Routes', () => {
     });
   });
 
-  describe('PUT /:id', () => {
+  describe('PUT /:id (normal mode)', () => {
     it('calls router put with /:id and a function', () => {
       const putSpy = jest.fn();
       const router = {
@@ -61,6 +61,22 @@ describe('Routes', () => {
       };
       const db = { read: () => {} };
       routes(router, db, noop, {}, []);
+      expect(putSpy).toHaveBeenCalledWith('/:id', expect.any(Function));
+    });
+  });
+
+  describe('PUT /:id (Upsert mode)', () => {
+    it('calls router upsert with /:id and a function', () => {
+      const putSpy = jest.fn();
+      const router = {
+        get: noop,
+        post: noop,
+        put: putSpy,
+        delete: noop,
+      };
+      const db = {};
+
+      routes(router, db, noop, {}, [], true);
       expect(putSpy).toHaveBeenCalledWith('/:id', expect.any(Function));
     });
   });

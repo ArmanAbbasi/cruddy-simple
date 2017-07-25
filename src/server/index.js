@@ -19,6 +19,7 @@ export default config => {
     logger,
     middleware = [],
     port,
+    putCanCreate,
     resource,
     routes: customRoutes = [],
     schema,
@@ -28,7 +29,7 @@ export default config => {
   const app = new Koa();
 
   const koaRouter = new KoaRouter({ prefix: `/${resource}` });
-  const router = routes(koaRouter, db, logger, schema, customRoutes);
+  const router = routes(koaRouter, db, logger, schema, customRoutes, putCanCreate);
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
@@ -47,5 +48,5 @@ export default config => {
   app.use(validate(swaggerDoc));
   app.use(ui(swaggerDoc, '/docs'));
 
-  return app.listen(port, () => logger.info(`INFO: Server running at ${host}`));
+  return app.listen(port, () => logger.info(`INFO: Server running at ${host}:${port}`));
 };
