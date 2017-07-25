@@ -215,6 +215,39 @@ describe('Dynamo DB', () => {
     });
   });
 
+  describe('.upsert', () => {
+    const params = { table: 'hello' };
+
+    it('calls client upsert with the specified item', async () => {
+      const item = { id: 111, name: 'Snape' };
+      const putSpy = jest.fn(() => ({ promise: noop }));
+      const client = { put: putSpy, get: () => ({ promise: () => Promise.resolve({}) }) };
+
+      await DynamoDb(client, params).upsert(item);
+
+      expect(putSpy).toHaveBeenCalledWith({ table: 'hello', Item: { id: 111, name: 'Snape' } });
+    });
+
+    it('returns item client upsert is successful', async () => {
+      const item = { name: 'Snape' };
+      const promiseSpy = () => Promise.resolve(item);
+      const client = { put: () => ({ promise: promiseSpy }) };
+
+      const actual = await DynamoDb(client, params).upsert(item);
+
+      expect(actual).toEqual(Either.Right({ name: 'Snape' }));
+    });
+
+    it('returns error when upsert fails', async () => {
+      const item = { name: 'Snape' };
+      const promiseSpy = () => Promise.reject('Professor Snape is displeased');
+      const client = { put: () => ({ promise: promiseSpy }) };
+      const actual = await DynamoDb(client, params).upsert(item);
+
+      expect(actual).toEqual(Either.Left('Professor Snape is displeased'));
+    });
+  });
+
   describe('.delete', () => {
     const params = { table: 'hello' };
 

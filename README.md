@@ -71,6 +71,8 @@ Config options:
 
 - **middleware**: `Array`. _An optional array of Koa middleware_
 
+- **isPutUpsert**: `Boolean`. Flag indicating that PUT will function as upsert.  Default is false.
+
 - **swaggerDoc**: `Object`. An object containing the swagger document to be exposed at `/docs`
 
 - **credentials**: `Object`

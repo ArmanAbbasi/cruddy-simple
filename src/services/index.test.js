@@ -12,6 +12,7 @@ import {
   post,
   put,
   schemaMiddleware,
+  upsert,
   validateBodyWithSchema,
   validateContentType,
 } from './';
@@ -281,6 +282,59 @@ describe('Services', () => {
       expect(actual.body).toEqual({
         id: 100,
         whatever: 'trevor',
+      });
+    });
+  });
+
+  describe('.upsert', () => {
+    it('calls throw with 400 if an id in the body does not match the id in the URL', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { params: { id: 111 }, request: { body: { id: 100, please: 'steve' } }, throw: throwSpy };
+      const upsertSpy = () => Either.Right({ id: 111, please: 'steve' });
+      const db = { upsert: upsertSpy };
+
+      await upsert(db, noop)(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(400, 'Cannot modify an item id via PUT');
+    });
+
+    it('calls db upsert with context params id and request body when group exists', async () => {
+      const upsertSpy = jest.fn(() => Either.Right({ id: 111, please: 'steve' }));
+      const db = { upsert: upsertSpy };
+      const ctx = { params: { id: 111 }, request: { body: { please: 'steve' } } };
+
+      await upsert(db, noop)(ctx);
+      expect(upsertSpy).toHaveBeenCalledWith({ id: 111, please: 'steve' });
+    });
+
+    it('calls ctx throw with 500 and error message when upsert returns an error', async () => {
+      const throwSpy = jest.fn();
+      const ctx = { params: { id: 111 }, request: { body: { please: 'steve' } }, throw: throwSpy };
+      const upsertSpy = () => Either.Left(new Error('Error could not connect to database'));
+      const db = { upsert: upsertSpy };
+
+      await upsert(db, { error: noop })(ctx);
+      expect(throwSpy).toHaveBeenCalledWith(500, 'Error could not connect to database');
+    });
+
+    it('calls logger error with error message when database returns an error', async () => {
+      const errorSpy = jest.fn();
+      const ctx = { params: { id: 111 }, request: { body: { please: 'steve' } }, throw: noop };
+      const upsertSpy = () => Either.Left(new Error('Error could not connect to database'));
+      const db = { upsert: upsertSpy };
+
+      await upsert(db, { error: errorSpy })(ctx);
+      expect(errorSpy).toHaveBeenCalledWith('ERROR: Error could not connect to database');
+    });
+
+    it('returns ctx with body set to result of update when successful', async () => {
+      const upsertSpy = jest.fn(() => Either.Right({ id: 111, please: 'steve' }));
+      const db = { upsert: upsertSpy };
+      const ctx = { params: { id: 111 }, request: { body: { please: 'steve' } } };
+
+      const actual = await upsert(db, noop)(ctx);
+      expect(actual.body).toEqual({
+        id: 111,
+        please: 'steve',
       });
     });
   });

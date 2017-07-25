@@ -24,7 +24,7 @@ const readById = (client, params) => async id => {
   }
 };
 
-const upsert = async (client, params, item) => {
+const upsert = (client, params) => async item => {
   try {
     await client.put({ ...params, Item: item }).promise();
     return Either.Right(item);
@@ -33,14 +33,14 @@ const upsert = async (client, params, item) => {
   }
 };
 
-const create = (client, params, createId) => async item => upsert(client, params, { ...item, id: createId() });
+const create = (client, params, createId) => async item => upsert(client, params)({ ...item, id: createId() });
 
 const update = (client, params) => async (id, item) => {
   const result = await readById(client, params)(id);
 
   if (result.isLeft) return result;
 
-  return upsert(client, params, { ...item, id });
+  return upsert(client, params)({ ...item, id });
 };
 
 const destroy = (client, params) => async id => {
@@ -61,5 +61,6 @@ export default (client, params, createId) => ({
   read: read(client, params),
   readById: readById(client, params),
   update: update(client, params),
+  upsert: upsert(client, params),
   delete: destroy(client, params),
 });

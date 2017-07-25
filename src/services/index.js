@@ -3,6 +3,7 @@ import { compose } from 'ramda';
 import { NotFoundError } from '../utils';
 
 const ID_IN_REQUEST_ERROR_MESSAGE = 'Cannot include id in request body';
+const CANNOT_MODIFY_ID_IN_PUT = 'Cannot modify an item id via PUT';
 
 const serverError = (ctx, logger) => error => {
   logger.error(`ERROR: ${error.message}`);
@@ -74,6 +75,17 @@ export const put = (db, logger) => async ctx => {
   if (body.id) return badRequest(ctx, ID_IN_REQUEST_ERROR_MESSAGE);
 
   const result = await db.update(id, body);
+  result.fold(mapError(ctx, logger), setBody(ctx));
+  return ctx;
+};
+
+export const upsert = (db, logger) => async ctx => {
+  const { id } = ctx.params;
+  const { body } = ctx.request;
+
+  if (body.id && body.id !== id) return badRequest(ctx, CANNOT_MODIFY_ID_IN_PUT);
+
+  const result = await db.upsert({ ...body, id });
   result.fold(mapError(ctx, logger), setBody(ctx));
   return ctx;
 };

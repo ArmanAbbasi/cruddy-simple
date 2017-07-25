@@ -1,6 +1,6 @@
 {
   "name": "@photobox/cruddy-simple",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Node CRUD API",
   "author": "Photobox",
   "contributors": [
