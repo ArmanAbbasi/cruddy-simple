@@ -4,7 +4,7 @@ const NOT_ATTACHED_MESSAGE = 'Route not attached';
 
 const missingPropertyMessage = prop => `Route missing ${prop} property`;
 
-export default (router, db, logger, schema, customRoutes, putCanCreate) => {
+export default (router, db, logger, schema, customRoutes, isPutUpsert) => {
   customRoutes.forEach(route => {
     if (!route.method) {
       logger.error(missingPropertyMessage('method'), route);
@@ -34,7 +34,7 @@ export default (router, db, logger, schema, customRoutes, putCanCreate) => {
 
   router.post('/', post(db, logger));
 
-  if (putCanCreate) {
+  if (isPutUpsert) {
     router.put('/:id', upsert(db, logger));
   } else {
     router.put('/:id', put(db, logger));

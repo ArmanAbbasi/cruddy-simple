@@ -19,7 +19,7 @@ export default config => {
     logger,
     middleware = [],
     port,
-    putCanCreate,
+    isPutUpsert,
     resource,
     routes: customRoutes = [],
     schema,
@@ -29,7 +29,7 @@ export default config => {
   const app = new Koa();
 
   const koaRouter = new KoaRouter({ prefix: `/${resource}` });
-  const router = routes(koaRouter, db, logger, schema, customRoutes, putCanCreate);
+  const router = routes(koaRouter, db, logger, schema, customRoutes, isPutUpsert);
 
   const validator = new Ajv({ allErrors: true }).compile(schema);
 
